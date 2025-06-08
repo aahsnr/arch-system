@@ -1,0 +1,2 @@
+#get PKGBUILD files of official arch pkgs
+pkgctl repo clone --protocol=https pkgname

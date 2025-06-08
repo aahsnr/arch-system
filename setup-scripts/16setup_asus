@@ -1,0 +1,20 @@
+#!/bin/bash
+echo "Installing asus-related packages"
+sudo pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+sudo pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+sudo pacman-key --lsign-key 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+sudo pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+
+cd && wget "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8b15a6b0e9a3fa35" -O g14.sec
+sudo pacman-key -a g14.sec
+cd && sudo rm -rf g14.sec
+
+sudo -- sh -c "echo '[g14]' >> /etc/pacman.conf"
+sudo -- sh -c "echo 'Server = https://arch.asus-linux.org' >> /etc/pacman.conf"
+sudo pacman -Suy
+
+yay -S asusctl power-profiles-daemon supergfxctl switcheroo-control rog-control-center 
+
+sudo systemctl enable --now power-profiles-daemon.service
+sudo systemctl enable --now supergfxd
+sudo systemctl enable --now switcheroo-control

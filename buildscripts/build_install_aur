@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "What package do you want to build"
+read PACKAGE
+cd /var/tmp && git clone https://aur.archlinux.org/$PACKAGE
+cd $PACKAGE
+nvim PKGBUILD
+makepkg -si --nocheck --skipchecksums --skippgpcheck --rmdeps --clean
+cd .. && sudo rm -rf $PACKAGE

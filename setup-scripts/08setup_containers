@@ -1,0 +1,4 @@
+#!/bin/bash
+yay -S aardvark-dns cockpit cockpit-packagekit cockpit-podman distrobox lxd netavark podman podman-docker firewalld 
+sudo systemctl enable --now lxd.service
+sudo systemctl enable --now cockpit.socket

@@ -1,0 +1,8 @@
+#!/bin/bash
+yay -S git git-delta git-lfs lazygit libsecret seahorse gnome-keyring
+
+cd
+git config --global user.name "aahsnr"
+git config --global user.email "ahsanur041@proton.me"
+git config --global credential.helper /usr/lib/git-core/git-credential-libsecret
+

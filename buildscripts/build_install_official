@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "What package do you want to build"
+read PACKAGE
+cd /var/tmp && pkgctl repo clone --protocol=https $PACKAGE
+cd $PACKAGE
+nvim PKGBUILD
+cd .. && cp -R $PACKAGE $HOME/.dots/arch_scripts/PKGBUILDS
+cd /var/tmp/$PACKAGE
+makepkg -si --noconfirm --nocheck --skipchecksums --skippgpcheck --rmdeps --clean
+cd .. && sudo rm -rf $PACKAGE

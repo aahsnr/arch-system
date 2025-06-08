@@ -1,0 +1,3 @@
+#!/bin/bash
+sudo pacman -S awk --noconfirm
+cd &&  pacman -Q | awk '{print $1}' > pre-cleaned.txt
