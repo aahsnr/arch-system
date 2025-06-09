@@ -1,5 +1,20 @@
 #!/bin/sh
 
+cfdisk /dev/nvme0n1 &&
+  mkfs.vfat -F 32 /dev/nvme0n1p1 &&
+  cryptsetup --cipher aes-xts-plain64 --hash sha512 --use-random --verify-passphrase luksFormat /dev/nvme0n1p2 &&
+  cryptsetup luksOpen /dev/nvme0n1p2 cryptlvm &&
+  pvcreate /dev/mapper/cryptlvm &&
+  vgcreate vg0 /dev/mapper/cryptlvm &&
+  lvcreate -L 16G vg0 -n swap &&
+  lvcreate -l 100%FREE vg0 -n root &&
+  mkfs.btrfs -f /dev/vg0/root &&
+  mkswap /dev/vg0/swap &&
+  rm -rf /mnt/gentoo &&
+  mkdir /mnt/gentoo &&
+  mount /dev/vg0/root /mnt/gentoo &&
+  swapon /dev/vg0/swap
+
 cfdisk /dev/nvme0n1 && mkfs.vfat -F 32 /dev/nvme0n1p1 &&
   cryptsetup --cipher aes-xts-plain64 --hash sha512 --use-random --verify-passphrase luksFormat /dev/nvme0n1p2 &&
   cryptsetup open --perf-no_read_workqueue --perf-no_write_workqueue --persistent /dev/nvme0n1p2 cryptroot &&
@@ -23,6 +38,36 @@ btrfs su cr /mnt/@ &&
   btrfs su cr /mnt/@var@log@audit &&
   btrfs su cr /mnt/@snapshots &&
   umount /mnt
+
+mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/vg0/root /mnt/gentoo &&
+  mkdir /mnt/gentoo/home &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@home /dev/vg0/root /mnt/gentoo/home &&
+  mkdir /mnt/gentoo/opt &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@opt /dev/vg0/root /mnt/gentoo/opt &&
+  mkdir /mnt/gentoo/root &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@root /dev/vg0/root /mnt/gentoo/root &&
+  mkdir /mnt/gentoo/srv &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@srv /dev/vg0/root /mnt/gentoo/srv &&
+  mkdir /mnt/gentoo/nix &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@nix /dev/vg0/root /mnt/gentoo/nix &&
+  mkdir -p /mnt/gentoo/usr/local &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@usr@local /dev/vg0/root /mnt/gentoo/usr/local &&
+  mkdir /mnt/gentoo/var &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var /dev/vg0/root /mnt/gentoo/var &&
+  mkdir /mnt/gentoo/var/cache &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@cache /dev/vg0/root /mnt/gentoo/var/cache &&
+  mkdir /mnt/gentoo/var/crash &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@crash /dev/vg0/root /mnt/gentoo/var/crash &&
+  mkdir /mnt/gentoo/var/tmp &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@tmp /dev/vg0/root /mnt/gentoo/var/tmp &&
+  mkdir /mnt/gentoo/var/spool &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@spool /dev/vg0/root /mnt/gentoo/var/spool &&
+  mkdir /mnt/gentoo/var/log &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log /dev/vg0/root /mnt/gentoo/var/log &&
+  mkdir /mnt/gentoo/var/log/audit &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log@audit /dev/vg0/root /mnt/gentoo/var/log/audit &&
+  mkdir /mnt/gentoo/.snapshots &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@snapshots /dev/vg0/root /mnt/gentoo/.snapshots
 
 mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/mapper/cryptroot /mnt &&
   mkdir /mnt/home &&
