@@ -1,5 +1,4 @@
-#!/bin/sh
-
+``````bash
 cfdisk /dev/nvme0n1 &&
   mkfs.vfat -F 32 /dev/nvme0n1p1 &&
   cryptsetup --cipher aes-xts-plain64 --hash sha512 --use-random --verify-passphrase luksFormat /dev/nvme0n1p2 &&
@@ -10,16 +9,12 @@ cfdisk /dev/nvme0n1 &&
   lvcreate -l 100%FREE vg0 -n root &&
   mkfs.btrfs -f /dev/vg0/root &&
   mkswap /dev/vg0/swap &&
-  rm -rf /mnt/gentoo &&
-  mkdir /mnt/gentoo &&
-  mount /dev/vg0/root /mnt/gentoo &&
+  mount /dev/vg0/root /mnt &&
   swapon /dev/vg0/swap
+``````
 
-cfdisk /dev/nvme0n1 && mkfs.vfat -F 32 /dev/nvme0n1p1 &&
-  cryptsetup --cipher aes-xts-plain64 --hash sha512 --use-random --verify-passphrase luksFormat /dev/nvme0n1p2 &&
-  cryptsetup open --perf-no_read_workqueue --perf-no_write_workqueue --persistent /dev/nvme0n1p2 cryptroot &&
-  mkfs.btrfs -f /dev/mapper/cryptroot && mount /dev/mapper/cryptroot /mnt
 
+``````bash
 btrfs su cr /mnt/@ &&
   btrfs su cr /mnt/@home &&
   btrfs su cr /mnt/@opt &&
@@ -38,90 +33,68 @@ btrfs su cr /mnt/@ &&
   btrfs su cr /mnt/@var@log@audit &&
   btrfs su cr /mnt/@snapshots &&
   umount /mnt
+``````
 
-mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/vg0/root /mnt/gentoo &&
-  mkdir /mnt/gentoo/home &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@home /dev/vg0/root /mnt/gentoo/home &&
-  mkdir /mnt/gentoo/opt &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@opt /dev/vg0/root /mnt/gentoo/opt &&
-  mkdir /mnt/gentoo/root &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@root /dev/vg0/root /mnt/gentoo/root &&
-  mkdir /mnt/gentoo/srv &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@srv /dev/vg0/root /mnt/gentoo/srv &&
-  mkdir /mnt/gentoo/nix &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@nix /dev/vg0/root /mnt/gentoo/nix &&
-  mkdir -p /mnt/gentoo/usr/local &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@usr@local /dev/vg0/root /mnt/gentoo/usr/local &&
-  mkdir /mnt/gentoo/var &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var /dev/vg0/root /mnt/gentoo/var &&
-  mkdir /mnt/gentoo/var/cache &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@cache /dev/vg0/root /mnt/gentoo/var/cache &&
-  mkdir /mnt/gentoo/var/crash &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@crash /dev/vg0/root /mnt/gentoo/var/crash &&
-  mkdir /mnt/gentoo/var/tmp &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@tmp /dev/vg0/root /mnt/gentoo/var/tmp &&
-  mkdir /mnt/gentoo/var/spool &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@spool /dev/vg0/root /mnt/gentoo/var/spool &&
-  mkdir /mnt/gentoo/var/log &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log /dev/vg0/root /mnt/gentoo/var/log &&
-  mkdir /mnt/gentoo/var/log/audit &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log@audit /dev/vg0/root /mnt/gentoo/var/log/audit &&
-  mkdir /mnt/gentoo/.snapshots &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@snapshots /dev/vg0/root /mnt/gentoo/.snapshots
 
-mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/mapper/cryptroot /mnt &&
+``````bash
+mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/vg0/root /mnt &&
   mkdir /mnt/home &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@home /dev/mapper/cryptroot /mnt/home &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@home /dev/vg0/root /mnt/home &&
   mkdir /mnt/opt &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@opt /dev/mapper/cryptroot /mnt/opt &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@opt /dev/vg0/root /mnt/opt &&
   mkdir /mnt/tmp &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@tmp /dev/mapper/cryptroot /mnt/tmp &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@tmp /dev/vg0/root /mnt/tmp
   mkdir /mnt/root &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@root /dev/mapper/cryptroot /mnt/root &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@root /dev/vg0/root /mnt/root &&
   mkdir /mnt/srv &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@srv /dev/mapper/cryptroot /mnt/srv &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@srv /dev/vg0/root /mnt/srv &&
   mkdir /mnt/nix &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@nix /dev/mapper/cryptroot /mnt/nix &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@nix /dev/vg0/root /mnt/nix &&
   mkdir -p /mnt/usr/local &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@usr@local /dev/mapper/cryptroot /mnt/usr/local &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@usr@local /dev/vg0/root /mnt/usr/local &&
   mkdir /mnt/var &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var /dev/mapper/cryptroot /mnt/var &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var /dev/vg0/root /mnt/var &&
   mkdir /mnt/var/cache &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@cache /dev/mapper/cryptroot /mnt/var/cache &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@cache /dev/vg0/root /mnt/var/cache &&
   mkdir -p /mnt/var/cache/pacman/pkg &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@pkg /dev/mapper/cryptroot /mnt/var/cache/pacman/pkg &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@pkg /dev/vg0/root /mnt/var/cache/pacman/pkg
   mkdir /mnt/var/crash &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@crash /dev/mapper/cryptroot /mnt/var/crash &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@crash /dev/vg0/root /mnt/var/crash &&
   mkdir /mnt/var/tmp &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@tmp /dev/mapper/cryptroot /mnt/var/tmp &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@tmp /dev/vg0/root /mnt/var/tmp &&
   mkdir /mnt/var/spool &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@spool /dev/mapper/cryptroot /mnt/var/spool &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@spool /dev/vg0/root /mnt/var/spool &&
   mkdir /mnt/var/log &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log /dev/mapper/cryptroot /mnt/var/log &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log /dev/vg0/root /mnt/var/log &&
   mkdir /mnt/var/log/audit &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log@audit /dev/mapper/cryptroot /mnt/var/log/audit &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log@audit /dev/vg0/root /mnt/var/log/audit &&
   mkdir /mnt/.snapshots &&
-  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots &&
+  mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@snapshots /dev/vg0/root /mnt/.snapshots &&
   mkdir /mnt/boot &&
   mount /dev/nvme0n1p1 /mnt/boot
+``````
 
+
+``````bash
 pacstrap /mnt base base-devel devtools git neovim arch-install-scripts reflector dracut yay
 
 genfstab -U /mnt >>/mnt/etc/fstab
+
 arch-chroot /mnt
 
 passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahsan && EDITOR=nvim visudo
-
-## reflector setup
 
 reflector --verbose -l 25 --country BD,IN --sort rate --save /etc/pacman.d/mirrorlist
 
 ln -sf /usr/share/zoneinfo/Asia/Dhaka /etc/localtime && hwclock --systohc && nvim /etc/locale.gen && locale-gen && echo "LANG=en_US.UTF-8" >>/etc/locale.conf
 
 passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahsan && EDITOR=nvim visudo
+``````
 
+
+``````bash
 yay -S \
-  acpid alacritty acct arch-audit audit \
+  acpid acct arch-audit audit \
   btrfs-progs boost btrfs-progs bleachbit brightnessctl \
   chrony curl cmake chkrootkit cups cliphist celluloid \
   dosfstools dbus-python devtools deluge \
@@ -147,6 +120,8 @@ yay -S \
   xorg-xwayland xournalpp xarchiver xdg-user-dirs xdg-user-dirs-gtk xdg-desktop-portal-hyprland \
   yazi \
   zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-avx2-bin zip
+``````
+
 
 # dracut setup
 nvim /etc/dracut.conf
