@@ -122,6 +122,38 @@ yay -S \
   zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-avx2-bin zip
 ``````
 
+`lsblk -o name,uuid`
+
+nvme0n1        
+├─nvme0n1p1    26FC-E891
+└─nvme0n1p2    84eaf03a-2d7a-440a-aa2f-cdf63d67b3da
+  └─cryptlvm   hbyaUi-q9Zv-1q0b-mI7d-0LhM-yaXB-p1tppR
+    ├─vg0-swap 5a4d6d84-9b4f-448a-9522-48897cd5be33
+    └─vg0-root ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2
+
+
+### dracut --print-cmdline gentoo
+rd.driver.pre=btrfs rd.luks.uuid=luks-84eaf03a-2d7a-440a-aa2f-cdf63d67b3da rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root resume=UUID=5a4d6d84-9b4f-448a-9522-48897cd5be33 root=UUID=ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2  rootfstype=btrfs
+
+
+#### With LVM
+## dracut setup
+mkdir /etc/dracut.conf.d/ && nvim /etc/dracut.conf.d/dracut.conf
+hostonly="yes"
+compress="zstd"
+add_dracutmodules+=" crypt dm rootfs-block resume lvm "
+omit_dracutmodules+=" network cifs nfs nbd brltty "
+force_drivers+=" btrfs "
+kernel_cmdline+=" rd.luks.uuid=84eaf03a-2d7a-440a-aa2f-cdf63d67b3da root=UUID=ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2 resume=UUID=5a4d6d84-9b4f-448a-9522-48897cd5be33 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
+
+#### Associated Grub
+nvim /etc/default/grub
+GRUB_CMDLINE_LINUX="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=84eaf03a-2d7a-440a-aa2f-cdf63d67b3da root=UUID=ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2 resume=UUID=5a4d6d84-9b4f-448a-9522-48897cd5be33 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
+GRUB_CMDLINE_LINUX_DEFAULT=""
+
+
+grub-install --target=x86_64-efi --efi-directory=/boot && grub-mkconfig -o /boot/grub/grub.cfg
+
 
 # dracut setup
 nvim /etc/dracut.conf
