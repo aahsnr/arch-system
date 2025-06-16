@@ -123,7 +123,7 @@ yay -S \
 ``````
 ### Doom Emacs packages
 ``````bash
-yay -S --noconfirm --needed hunspell hunspell hunspell-en_us anaconda lazydocker
+yay -S --noconfirm --needed hunspell hunspell hunspell-en_us anaconda lazydocker shellcheck shfmt graphviz 
 ``````
 
 `lsblk -o name,uuid`
