@@ -121,6 +121,10 @@ yay -S \
   yazi \
   zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-avx2-bin zip
 ``````
+### Doom Emacs packages
+``````bash
+yay -S --noconfirm --needed hunspell hunspell hunspell-en_us anaconda lazydocker
+``````
 
 `lsblk -o name,uuid`
 
