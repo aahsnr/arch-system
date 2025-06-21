@@ -93,33 +93,32 @@ passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahs
 
 
 ``````bash
-yay -S --noconfirm \
+yay -S  \
   arch-audit audit \
   btrfs-progs boost btrfs-progs bleachbit brightnessctl \
-  chrony curl cmake chkrootkit cups cliphist celluloid \
+  chrony curl cmake cliphist celluloid \
   dosfstools dbus-python devtools deluge \
   emacs-wayland \
   fd fzf flatpak fdupes fastfetch fnm fwupd \
   grim greetd gnome-keyring gjs gtk3 gtk4 gnome-bluetooth-3.0 gobject-introspection gtk-layer-shell gtk4-layer-shell grub grub-btrfs grub-customizer \
-  haveged hyprlang hyprcursor hyprwayland-scanner hypridle hyprlock hyprnome hyprdim hyprpaper hyprpicker hyprland hyprlux hyprpolkitagent \
-  insync \
+  haveged hunspell hunspell-en_us hyprlang hyprcursor hyprwayland-scanner hypridle hyprlock hyprnome hyprdim hyprpaper hyprpicker hyprland hyprlux hyprpolkitagent \
   jq jitterentropy-rngd \
   kitty kvantum kvantum-qt5 kvantum-theme-catppuccin-git \
   lazygit lynis libdbusmenu-gtk3 libsoup3 logrotate libva libva-nvidia-driver lsd \
   mesa mpv meson \
-  networkmanager nwg-hello nodejs npm nvidia-open-dkms nvidia-utils nodejs-neovim \
+  networkmanager nwg-hello nodejs npm nvidia-utils nodejs-neovim \
   org.freedesktop.secrets \
-  papirus-icon-theme python-pip python-pipx python-pynvim pipewire pipewire-alsa pipewire-pulse pipewire-jack pavucontrol pyprland python-pam power-profiles-daemon \
+  papirus-icon-theme python-pip python-pipx python-pynvim pipewire pipewire-alsa pipewire-pulse pipewire-jack pavucontrol pyprland python-pam power-profiles-daemon python-materialyoucolor-git \
   qt5-wayland qt6-wayland qt5ct qt6ct \
   rng-tools rust ripgrep ranger rkhunter \
-  swappy sysstat slurp swww sassc snapper snap-pac snap-pac-grub spotify-launcher starship \
+  shellcheck shfmt swappy sysstat slurp swww sassc snapper snap-pac snap-pac-grub spotify-launcher starship \
   tealdeer thunderbird thunar thunar-volman thunar-media-tags-plugin thunar-archive-plugin tumbler tree-sitter-cli ttf-jetbrains-mono-nerd ttf-jetbrains-mono ttf-ubuntu-font-family typescript \
   unzip unrar upower \
   vulkan-tools vulkan-headers vulkan-validation-layers \
   wl-clipboard wf-recorder wget wireplumber \
   xorg-xwayland xournalpp xarchiver xdg-user-dirs xdg-user-dirs-gtk xdg-desktop-portal-hyprland \
-  yazi \
-  zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-avx2-bin zip
+  yazi yarn \
+  zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-bin zip
 ``````
 
 ### Emacs packages
@@ -128,15 +127,6 @@ yay -S --noconfirm --needed hunspell hunspell hunspell-en_us anaconda lazydocker
 ``````
 
 `lsblk -o name,uuid`
-
-``````bash
-nvme0n1        
-├─nvme0n1p1    26FC-E891
-└─nvme0n1p2    84eaf03a-2d7a-440a-aa2f-cdf63d67b3da
-  └─cryptlvm   hbyaUi-q9Zv-1q0b-mI7d-0LhM-yaXB-p1tppR
-    ├─vg0-swap 5a4d6d84-9b4f-448a-9522-48897cd5be33
-    └─vg0-root ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2
-``````
 
 ``````sh
 nvme0n1        
@@ -147,8 +137,18 @@ nvme0n1
     └─vg0-root adfc718b-f18e-4c69-a597-39ffcd009f5c
 ``````
 
+``````sh
+nvme0n1        
+├─nvme0n1p1    6BFD-0C70
+└─nvme0n1p2    7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b
+  └─cryptlvm   lQYqUu-EuR7-Jl8O-8TQS-ooAc-uuHy-NLBLRP
+    ├─vg0-swap 18bd8b04-7dcc-4b02-9265-edc46720add8
+    └─vg0-root 2b60fb88-4861-47e1-b9c0-984ccb20ca70
+``````
+
+
 ### dracut --print-cmdline gentoo
-rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
+rd.luks.uuid=luks-7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b root=UUID=2b60fb88-4861-47e1-b9c0-984ccb20ca70 resume=UUID=18bd8b04-7dcc-4b02-9265-edc46720add8 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
 
 
 #### With LVM
@@ -160,41 +160,17 @@ compress="zstd"
 add_dracutmodules+=" crypt dm rootfs-block resume lvm "
 omit_dracutmodules+=" network cifs nfs nbd brltty "
 force_drivers+=" btrfs "
-kernel_cmdline+=" rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
+kernel_cmdline+=" rd.luks.uuid=luks-7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b root=UUID=2b60fb88-4861-47e1-b9c0-984ccb20ca70 resume=UUID=18bd8b04-7dcc-4b02-9265-edc46720add8 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
 ``````
 
 #### Associated Grub
 ``````sh
 nvim /etc/default/grub
-GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
+GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=luks-7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b root=UUID=2b60fb88-4861-47e1-b9c0-984ccb20ca70 resume=UUID=18bd8b04-7dcc-4b02-9265-edc46720add8 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
 GRUB_CMDLINE_LINUX=""
 ``````
 
 grub-install --target=x86_64-efi --efi-directory=/boot && grub-mkconfig -o /boot/grub/grub.cfg
-
-
-# dracut setup
-nvim /etc/dracut.conf
-compress="zstd"
-hostonly="yes"
-dracutmodules+=" kernel-modules rootfs-block udev-rules usrmount base fs-lib shutdown "
-add_dracutmodules+=" crypt dm rootfs-block "
-omit_dracutmodules+=" network cifs nfs nbd brltty "
-force_drivers+=" btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm "
-kernel_cmdline="quiet loglevel=3 cryptdevice=UUID=e1778643-a4b2-4cd5-b42b-25c9c995ee6b:cryptroot root=/dev/mapper/cryptroot nvidia-drm.modeset=1 rootfstype=btrfs rootflags=rw root_trim=yes"
-install_items+=" /etc/crypttab "
-
-nvim /etc/crypttab
-e1778643-a4b2-4cd5-b42b-25c9c995ee6b
-
-nvim /etc/crypttab
-cryptroot UUID=e1778643-a4b2-4cd5-b42b-25c9c995ee6b none luks,initramfs
-
-nvim /etc/default/grub
-GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 cryptdevice=UUID=e1778643-a4b2-4cd5-b42b-25c9c995ee6b:cryptroot root=/dev/mapper/cryptroot nvidia-drm.modeset=1 rootfstype=btrfs rootflags=rw root_trim=yes"
-GRUB_CMDLINE_LINUX=""
-
-GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES rd.luks.uuid=d31114f8-58f8-4f4c-9ea2-b496daa906b7 nvidia_drm.modeset=1 loglevel=0 quiet'
 
 pacman -S eos-dracut
 
@@ -203,7 +179,7 @@ reinstall-kernels
 grub-install --target=x86_64-efi --efi-directory=/boot && grub-install --target=x86_64-efi --efi-directory=/boot --removable && grub-mkconfig -o /boot/grub/grub.cfg
 
 ** Systemd Setup
-systemctl enable NetworkManager fstrim.timer acpid sysstat reflector reflector.timer auditd chronyd
+systemctl enable NetworkManager fstrim.timer power-profiles-daemon sysstat reflector reflector.timer auditd chronyd
 
 ** Secure Boot Setup
 
