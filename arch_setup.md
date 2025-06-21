@@ -93,23 +93,23 @@ passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahs
 
 
 ``````bash
-yay -S \
-  acpid acct arch-audit audit \
+yay -S --noconfirm \
+  arch-audit audit \
   btrfs-progs boost btrfs-progs bleachbit brightnessctl \
   chrony curl cmake chkrootkit cups cliphist celluloid \
   dosfstools dbus-python devtools deluge \
   emacs-wayland \
   fd fzf flatpak fdupes fastfetch fnm fwupd \
   grim greetd gnome-keyring gjs gtk3 gtk4 gnome-bluetooth-3.0 gobject-introspection gtk-layer-shell gtk4-layer-shell grub grub-btrfs grub-customizer \
-  haveged hyprlang hyprcursor hyprwayland-scanner hypridle hyprlock hyprnome hyprdim hyprpaper hyprpicker hyprland hyprsunset \
+  haveged hyprlang hyprcursor hyprwayland-scanner hypridle hyprlock hyprnome hyprdim hyprpaper hyprpicker hyprland hyprlux hyprpolkitagent \
   insync \
   jq jitterentropy-rngd \
   kitty kvantum kvantum-qt5 kvantum-theme-catppuccin-git \
   lazygit lynis libdbusmenu-gtk3 libsoup3 logrotate libva libva-nvidia-driver lsd \
-  mesa mate-polkit mpv meson \
+  mesa mpv meson \
   networkmanager nwg-hello nodejs npm nvidia-open-dkms nvidia-utils nodejs-neovim \
   org.freedesktop.secrets \
-  papirus-icon-theme python-pip python-pipx python-pynvim pipewire pipewire-alsa pipewire-pulse pipewire-jack pavucontrol pyprland python-pam \
+  papirus-icon-theme python-pip python-pipx python-pynvim pipewire pipewire-alsa pipewire-pulse pipewire-jack pavucontrol pyprland python-pam power-profiles-daemon \
   qt5-wayland qt6-wayland qt5ct qt6ct \
   rng-tools rust ripgrep ranger rkhunter \
   swappy sysstat slurp swww sassc snapper snap-pac snap-pac-grub spotify-launcher starship \
@@ -121,23 +121,34 @@ yay -S \
   yazi \
   zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-avx2-bin zip
 ``````
-### Doom Emacs packages
+
+### Emacs packages
 ``````bash
 yay -S --noconfirm --needed hunspell hunspell hunspell-en_us anaconda lazydocker shellcheck shfmt graphviz 
 ``````
 
 `lsblk -o name,uuid`
 
+``````bash
 nvme0n1        
 ├─nvme0n1p1    26FC-E891
 └─nvme0n1p2    84eaf03a-2d7a-440a-aa2f-cdf63d67b3da
   └─cryptlvm   hbyaUi-q9Zv-1q0b-mI7d-0LhM-yaXB-p1tppR
     ├─vg0-swap 5a4d6d84-9b4f-448a-9522-48897cd5be33
     └─vg0-root ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2
+``````
 
+``````sh
+nvme0n1        
+├─nvme0n1p1    15EA-4719
+└─nvme0n1p2    3c70cda3-1b40-4d7a-8c8b-f80d246c7e31
+  └─cryptlvm   6fKJJL-s2rM-Xh7E-I0N6-KIli-fuXO-6m9RC1
+    ├─vg0-swap 7e345141-26bd-4a25-90bc-f80d6c2837f1
+    └─vg0-root adfc718b-f18e-4c69-a597-39ffcd009f5c
+``````
 
 ### dracut --print-cmdline gentoo
-rd.driver.pre=btrfs rd.luks.uuid=luks-84eaf03a-2d7a-440a-aa2f-cdf63d67b3da rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root resume=UUID=5a4d6d84-9b4f-448a-9522-48897cd5be33 root=UUID=ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2  rootfstype=btrfs
+rd.driver.pre=btrfs rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
 
 
 #### With LVM
