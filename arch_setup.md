@@ -148,24 +148,27 @@ nvme0n1
 ``````
 
 ### dracut --print-cmdline gentoo
-rd.driver.pre=btrfs rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
+rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
 
 
 #### With LVM
 ## dracut setup
+``````sh
 mkdir /etc/dracut.conf.d/ && nvim /etc/dracut.conf.d/dracut.conf
 hostonly="yes"
 compress="zstd"
 add_dracutmodules+=" crypt dm rootfs-block resume lvm "
 omit_dracutmodules+=" network cifs nfs nbd brltty "
 force_drivers+=" btrfs "
-kernel_cmdline+=" rd.luks.uuid=84eaf03a-2d7a-440a-aa2f-cdf63d67b3da root=UUID=ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2 resume=UUID=5a4d6d84-9b4f-448a-9522-48897cd5be33 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
+kernel_cmdline+=" rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
+``````
 
 #### Associated Grub
+``````sh
 nvim /etc/default/grub
-GRUB_CMDLINE_LINUX="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=84eaf03a-2d7a-440a-aa2f-cdf63d67b3da root=UUID=ffedb9b8-db07-46e7-b4f1-b0ce0b9209b2 resume=UUID=5a4d6d84-9b4f-448a-9522-48897cd5be33 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
-GRUB_CMDLINE_LINUX_DEFAULT=""
-
+GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=luks-3c70cda3-1b40-4d7a-8c8b-f80d246c7e31 root=UUID=adfc718b-f18e-4c69-a597-39ffcd009f5c resume=UUID=7e345141-26bd-4a25-90bc-f80d6c2837f1 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
+GRUB_CMDLINE_LINUX=""
+``````
 
 grub-install --target=x86_64-efi --efi-directory=/boot && grub-mkconfig -o /boot/grub/grub.cfg
 
