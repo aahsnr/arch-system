@@ -94,19 +94,19 @@ passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahs
 
 ``````bash
 yay -S  \
-  arch-audit audit \
+  apparmor arch-audit audit \
   btrfs-progs boost btrfs-progs bleachbit brightnessctl \
-  chrony curl cmake cliphist celluloid \
+  chrony curl cmake cliphist \
   dosfstools dbus-python devtools deluge \
   emacs-wayland \
   fd fzf flatpak fdupes fastfetch fnm fwupd \
-  grim greetd gnome-keyring gjs gtk3 gtk4 gnome-bluetooth-3.0 gobject-introspection gtk-layer-shell gtk4-layer-shell grub grub-btrfs grub-customizer \
+  graphviz grim greetd gnome-keyring gjs gtk3 gtk4 grub grub-btrfs grub-customizer \
   haveged hunspell hunspell-en_us hyprlang hyprcursor hyprwayland-scanner hypridle hyprlock hyprnome hyprdim hyprpaper hyprpicker hyprland hyprlux hyprpolkitagent \
   jq jitterentropy-rngd \
   kitty kvantum kvantum-qt5 kvantum-theme-catppuccin-git \
-  lazygit lynis libdbusmenu-gtk3 libsoup3 logrotate libva libva-nvidia-driver lsd \
+  lazydocker lazygit lynis libdbusmenu-gtk3 libsoup3 logrotate libva libva-nvidia-driver lsd \
   mesa mpv meson \
-  networkmanager nwg-hello nodejs npm nvidia-utils nodejs-neovim \
+  networkmanager nodejs npm nvidia-utils nodejs-neovim nwg-look \
   org.freedesktop.secrets \
   papirus-icon-theme python-pip python-pipx python-pynvim pipewire pipewire-alsa pipewire-pulse pipewire-jack pavucontrol pyprland python-pam power-profiles-daemon python-materialyoucolor-git \
   qt5-wayland qt6-wayland qt5ct qt6ct \
@@ -121,21 +121,7 @@ yay -S  \
   zathura zathura-pdf-poppler zsh zsh-completions zoxide zen-browser-bin zip
 ``````
 
-### Emacs packages
-``````bash
-yay -S --noconfirm --needed hunspell hunspell hunspell-en_us anaconda lazydocker shellcheck shfmt graphviz 
-``````
-
 `lsblk -o name,uuid`
-
-``````sh
-nvme0n1        
-├─nvme0n1p1    15EA-4719
-└─nvme0n1p2    3c70cda3-1b40-4d7a-8c8b-f80d246c7e31
-  └─cryptlvm   6fKJJL-s2rM-Xh7E-I0N6-KIli-fuXO-6m9RC1
-    ├─vg0-swap 7e345141-26bd-4a25-90bc-f80d6c2837f1
-    └─vg0-root adfc718b-f18e-4c69-a597-39ffcd009f5c
-``````
 
 ``````sh
 nvme0n1        
@@ -174,7 +160,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot && grub-mkconfig -o /boot
 
 pacman -S eos-dracut
 
-reinstall-kernels
+dracut-rebuild
 
 grub-install --target=x86_64-efi --efi-directory=/boot && grub-install --target=x86_64-efi --efi-directory=/boot --removable && grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -183,6 +169,8 @@ systemctl enable NetworkManager fstrim.timer power-profiles-daemon sysstat refle
 
 ** Secure Boot Setup
 
+``````sh
+nvim /etc/issue && nvim /etc/issue.net
 -- WARNING -- This system is for the use of authorized users only. Individuals
 using this computer system without authority or in excess of their authority
 are subject to having all their activities on this system monitored and
@@ -190,6 +178,7 @@ recorded by system personnel. Anyone using this system expressly consents to
 such monitoring and is advised that if such monitoring reveals possible
 evidence of criminal activity system personal may provide the evidence of such
 monitoring to law enforcement officials.
+``````
 
 ## build toolchain
 linux-api-headers- >glibc >binutils >gcc >glibc >binutils >gcc
