@@ -82,13 +82,18 @@ genfstab -U /mnt >>/mnt/etc/fstab
 
 arch-chroot /mnt
 
-passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahsan && EDITOR=nvim visudo
-
 reflector --verbose -l 25 --country BD,IN --sort rate --save /etc/pacman.d/mirrorlist
 
 ln -sf /usr/share/zoneinfo/Asia/Dhaka /etc/localtime && hwclock --systohc && nvim /etc/locale.gen && locale-gen && echo "LANG=en_US.UTF-8" >>/etc/locale.conf
 
 passwd && useradd -m -G users,wheel,audio,video -s /bin/bash ahsan && passwd ahsan && EDITOR=nvim visudo
+``````
+
+## Setup CachyOS repositories
+``````sh
+curl https://mirror.cachyos.org/cachyos-repo.tar.xz -o cachyos-repo.tar.xz
+tar xvf cachyos-repo.tar.xz && cd cachyos-repo
+sudo ./cachyos-repo.sh
 ``````
 
 
@@ -132,9 +137,18 @@ nvme0n1
     └─vg0-root 2b60fb88-4861-47e1-b9c0-984ccb20ca70
 ``````
 
+``````sh
+nvme0n1        
+├─nvme0n1p1    B918-8549
+└─nvme0n1p2    51925089-219b-4ffd-bd0f-5d52b2a0066b
+  └─cryptlvm   TQ8t2M-PwaT-liwO-fPT8-v178-218Y-QhZGbw
+    ├─vg0-swap 80a38d91-292d-42e0-9de5-c269dbe48d5a
+    └─vg0-root ff3eb2f3-8a88-4abc-9b88-f4324cd5ed8b
+``````
+
 
 ### dracut --print-cmdline gentoo
-rd.luks.uuid=luks-7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b root=UUID=2b60fb88-4861-47e1-b9c0-984ccb20ca70 resume=UUID=18bd8b04-7dcc-4b02-9265-edc46720add8 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
+rd.luks.uuid=luks-51925089-219b-4ffd-bd0f-5d52b2a0066b root=UUID=ff3eb2f3-8a88-4abc-9b88-f4324cd5ed8b resume=UUID=80a38d91-292d-42e0-9de5-c269dbe48d5a rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root
 
 
 #### With LVM
@@ -146,13 +160,13 @@ compress="zstd"
 add_dracutmodules+=" crypt dm rootfs-block resume lvm "
 omit_dracutmodules+=" network cifs nfs nbd brltty "
 force_drivers+=" btrfs "
-kernel_cmdline+=" rd.luks.uuid=luks-7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b root=UUID=2b60fb88-4861-47e1-b9c0-984ccb20ca70 resume=UUID=18bd8b04-7dcc-4b02-9265-edc46720add8 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
+kernel_cmdline+=" rd.luks.uuid=luks-51925089-219b-4ffd-bd0f-5d52b2a0066b root=UUID=ff3eb2f3-8a88-4abc-9b88-f4324cd5ed8b resume=UUID=80a38d91-292d-42e0-9de5-c269dbe48d5a rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root "
 ``````
 
 #### Associated Grub
 ``````sh
 nvim /etc/default/grub
-GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=luks-7f7dcfa0-f0ab-48b0-bb06-52b9bfe91b9b root=UUID=2b60fb88-4861-47e1-b9c0-984ccb20ca70 resume=UUID=18bd8b04-7dcc-4b02-9265-edc46720add8 rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
+GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=btrfs quiet loglevel=0 rw rd.vconsole.keymap=us rd.luks.uuid=luks-51925089-219b-4ffd-bd0f-5d52b2a0066b root=UUID=ff3eb2f3-8a88-4abc-9b88-f4324cd5ed8b resume=UUID=80a38d91-292d-42e0-9de5-c269dbe48d5a rd.lvm.lv=vg0/swap rd.lvm.lv=vg0/root"
 GRUB_CMDLINE_LINUX=""
 ``````
 
