@@ -13,11 +13,10 @@ cd && sudo rm -R yay-bin
 
 # sudo cp -R $HOME/.dots/arch-scripts/preconfig-files/pacman.conf /etc/
 # sudo cp -R $HOME/.dots/arch-scripts/preconfig-files/makepkg.conf /etc/
-sudo cp -R $HOME/.dots/arch-scripts/preconfig-files/dracut.conf /etc/
+# sudo cp -R $HOME/.dots/arch-scripts/preconfig-files/dracut.conf /etc/
 #
 sudo pacman -S reflector --noconfirm
 sudo reflector --verbose -l 25 --sort rate --save /etc/pacman.d/mirrorlist
 #
 sudo pacman -Syyuu
 ln -sf /usr/share/zoneinfo/Asia/Dhaka /etc/localtime && hwclock --systohc && nvim /etc/locale.gen && locale-gen && echo "LANG=en_US.UTF-8" >>/etc/locale.conf
-
