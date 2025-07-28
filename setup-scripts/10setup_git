@@ -5,4 +5,3 @@ cd
 git config --global user.name "aahsnr"
 git config --global user.email "ahsanur041@proton.me"
 git config --global credential.helper /usr/lib/git-core/git-credential-libsecret
-

@@ -1,0 +1,2 @@
+#!/bin/bash
+yay -S --noconfirm --needed zathura zathura-pdf-poppler zen-browser--bin zotero-bin deluge-gtk bleachbit bitwarden xournalpp
