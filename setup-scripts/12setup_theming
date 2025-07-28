@@ -1,4 +1,3 @@
 #!/bin/bash
 echo "Installing gtk theme"
- yay -S gnome-themes-extra gtk-engine-murrine sassc catppuccin-gtk-theme-macchiato papirus-icon-theme papirus-folders-catppuccin-git bibata-cursor-theme 
-
+yay -S
