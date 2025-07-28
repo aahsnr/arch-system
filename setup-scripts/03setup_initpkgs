@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Initial Setup"
 cd
-yay -S --noconfirm zstd curl linux-zen linux-zen-headers gcc make acpid arch-audit linux-firmware btrfs-progs networkmanager vim pkgconf plymouth efibootmgr wget curl texinfo openssh
+yay -S --noconfirm zstd curl gcc make acpid arch-audit linux-firmware btrfs-progs networkmanager vim pkgconf plymouth efibootmgr wget curl texinfo openssh
 
 sudo systemctl enable --now sshd
 sudo cp -R $HOME/.dots/arch-scripts/preconfig-files/sshd_config /etc/ssh/

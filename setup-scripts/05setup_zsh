@@ -1,6 +1,3 @@
 #!/bin/bash
-yay -S --noconfirm zsh zinit thefuck
-ln -sv $HOME/.dots/.zshrc $HOME/
-ln -sv $HOME/.dots/.config/starship.toml $HOME/.config
-ln -sv $HOME/.dots/.config/zsh $HOME/.config
+yay -S --noconfirm zsh thefuck
 chsh -s $(which zsh)

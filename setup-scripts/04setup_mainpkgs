@@ -5,7 +5,7 @@ yay -S --noconfirm \
   bat brave-bin btrfs-progs boost boxbuddy btop btrfs-progs bleachbit bitwarden brightnessctl \
   chrony curl cmake chkrootkit cups cliphist \
   dosfstools dbus-python devtools deluge direnv dropbox downgrade pacman-contrib \
-  emacs-wayland eza \
+  eza \
   fd flatpak fzf fdupes fastfetch fnm foot fwupd freeoffice \
   grim greetd gnome-keyring gjs gtk3 gtk4 gnome-bluetooth-3.0 gobject-introspection gtk-layer-shell gtk4-layer-shell grub grub-btrfs grub-customizer gst-plugin-pipewire gst-plugins-bad gst-plugins-ugly gst-plugins-good gvfs-goa \
   haveged hyprlang-git hyprcursor-git hyprwayland-scanner-git hypridle-git hyprlock-git hyprnome hyprdim hyprpaper-git hyprpicker-git hyprland-git hyprsunset-git \
@@ -27,4 +27,3 @@ yay -S --noconfirm \
   unzip \
   yazi \
   zathura zathura-pdf-poppler zen-browser-avx2-bin zoxide zotero-bin zip
-
