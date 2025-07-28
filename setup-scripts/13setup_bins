@@ -5,9 +5,3 @@ sudo ln -sv $HOME/.dots/arch-scripts/bin/hyprlauncher /usr/local/bin/hyprlaunche
 sudo ln -sv $HOME/.dots/arch-scripts/bin/hyprrunner /usr/local/bin/hyprrunner
 sudo ln -sv $HOME/.dots/arch-scripts/bin/hyprterm /usr/local/bin/hyprterm
 sudo ln -sv $HOME/.dots/arch-scripts/bin/hyprtheme /usr/local/bin/hyprtheme
-sudo ln -sv $HOME/.dots/arch-scripts/bin/portal-fix /usr/local/bin/portal-fix
-sudo ln -sv $HOME/.dots/arch-scripts/bin/reload_ags /usr/local/bin/reload_ags
-sudo ln -sv $HOME/.dots/arch-scripts/bin/rofi-bluetooth /usr/local/bin/rofi-bluetooth
-sudo ln -sv $HOME/.dots/arch-scripts/bin/spotify-launcher /usr/local/bin/spotify-launcher
-
-
