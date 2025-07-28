@@ -1,9 +1,0 @@
-#!/bin/bash
-yay -S --noconfirm typescript npm meson gjs gtk3 gtk-layer-shell upower networkmanager gobject-introspection libdbusmenu-gtk3 libsoup3 pipewire libgtop bluez bluez-utils btop networkmanager dart-sass wl-clipboard brightnessctl swww python gnome-bluetooth-3.0 pacman-contrib power-profiles-daemon gvfs grimblast-git gpu-screen-recorder matugen-bin python-gpustat 
-cd && git clone --recursive https://github.com/Aylur/ags.git
-cd ags && git checkout v1.8.2
-npm install
-meson setup build
-sudo meson install -C build
-cd && ags
-
