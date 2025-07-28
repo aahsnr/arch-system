@@ -1,0 +1,2 @@
+yay -S ripgrep fd fzf emacs-wayland python-neovim neovim nodejs npm yarn rust cargo go wl-clipboard markdownlint poppler tree-sitter-cli shfmt imagemagick hunspell hunspell-en_us pyright python-pylint python-black python-isort python-debugpy bash-language-server shellcheck jre-openjdk jdk-openjdk miniconda3
+
