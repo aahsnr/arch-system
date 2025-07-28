@@ -1,21 +1,3 @@
 #!/bin/bash
 
-yay -S --noconfirm --needed \
-  acpid arch-audit amd-ucode \
-  btrfs-progs boost btop btrfs-progs \
-  chrony curl cmake chkrootkit \
-  dosfstools dbus-python downgrade pacman-contrib \
-  fdupes fastfetch fwupd \
-  haveged \
-  jq jitterentropy-rngd \
-  lynis logrotate libva \
-  mesa meson \
-  pamac-all python-pam plocate \
-  rng-tools \
-  sysstat snapper snap-pac snap-pac-grub sof-firmware smartmontools \
-  unzip unrar upower \
-  vulkan-tools vulkan-headers vulkan-validation-layers \
-  wget \
-  xorg-xwayland xz xf86-video-amdgpu \
-  unzip \
-  zip
+yay -S --noconfirm --needed acpid arch-audit amd-ucode btrfs-progs boost btop btrfs-progs chrony curl cmake chkrootkit dosfstools dbus-python downgrade pacman-contrib fdupes fastfetch fwupd haveged jq jitterentropy-rngd lynis logrotate libva mesa meson pamac-all python-pam plocate rng-tools sysstat snapper snap-pac snap-pac-grub sof-firmware smartmontools unzip unrar upower wget xz unzip zip

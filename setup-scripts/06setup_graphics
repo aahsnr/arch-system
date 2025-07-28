@@ -1,2 +1,2 @@
 #!/bin/bash
-yay -S --noconfirm libva-nvidia-driver nvidia-container-toolkit nvidia-open-dkms nvidia-utils opencl-nvidia ffnvcodec-headers
+yay -S --noconfirm --needed libva-nvidia-driver nvidia-container-toolkit nvidia-utils opencl-nvidia ffnvcodec-headers vulkan-tools vulkan-headers vulkan-validation-layers xorg-xwayland xf86-video-amdgpu
