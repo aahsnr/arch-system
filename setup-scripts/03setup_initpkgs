@@ -4,7 +4,7 @@ cd
 yay -S --noconfirm --needed zstd curl gcc make acpid arch-audit linux-firmware btrfs-progs networkmanager pkgconf plymouth efibootmgr wget curl texinfo openssh
 
 sudo systemctl enable --now sshd
-sudo cp -R $HOME/.dots/arch-scripts/preconfig-files/sshd_config /etc/ssh/
+sudo cp -R $HOME/git/arch-setup/preconfig-files/sshd_config /etc/ssh/
 
 echo "Finished Installing Initial Packages"
 
