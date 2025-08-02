@@ -25,7 +25,6 @@ from typing import Any, Dict, List, Set
 
 import pyalpm
 import requests
-from pyalpm.handle import Handle
 
 # --- Configuration & Theming ---
 class Config:
@@ -54,10 +53,12 @@ class PackageTool:
         self.dry_run = dry_run
         self._check_system_deps()
         try:
-            self.handle = Handle("/", "/var/lib/pacman")
+            # CORRECTED: Instantiate Handle directly from the pyalpm module
+            self.handle = pyalpm.Handle("/", "/var/lib/pacman")
             self.syncdbs = self.handle.get_syncdbs()
             self.localdb = self.handle.get_localdb()
-        except pyalpm.error as e:
+        # CORRECTED: Catch the specific AlpmError
+        except pyalpm.AlpmError as e:
             raise EnvironmentError(f"Failed to initialize pyalpm: {e}") from e
         self._aur_cache: Dict[str, Dict[str, Any]] = {}
 
@@ -108,6 +109,7 @@ class PackageTool:
         print(f"\n{Theme.BLUE}{Theme.I_REPO}  Official Repositories{Theme.END}")
         repo_results_found = False
         for db in self.syncdbs:
+            # Use pyalpm's native search capabilities
             for pkg in db.search(" ".join(search_terms)):
                 repo_results_found = True
                 installed_tag = f" [{Theme.GREEN}installed{Theme.END}]" if self.localdb.get_pkg(pkg.name) else ""
