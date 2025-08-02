@@ -5,12 +5,12 @@
 A professional, unified package utility for Arch Linux, powered by pyalpm.
 
 This tool streamlines package management with a beautiful Tokyo Night-themed
-interface. It features install and search commands, recursive AUR dependency
+interface. It features install, search, and remove commands, recursive AUR dependency
 resolution, a dry-run mode, and an enhanced security audit that flags orphans.
 """
 
 __author__ = "Gemini"
-__version__ = "6.1.0"
+__version__ = "7.0.0"
 __license__ = "MIT"
 
 import argparse
@@ -35,7 +35,7 @@ class Theme:
     MAGENTA, CYAN, GREY, END = "\033[95m", "\033[96m", "\033[90m", "\033[0m"
     BOLD = "\033[1m"
     I_INFO, I_SUCCESS, I_WARN, I_ERROR = "⚙️", "✔️", "⚠️", "❌"
-    I_SEARCH, I_PLAN, I_EXEC, I_DRY = "🔍", "📝", "🚀", "✨"
+    I_SEARCH, I_PLAN, I_EXEC, I_DRY, I_TRASH = "🔍", "📝", "🚀", "✨", "🗑️"
     I_REPO, I_AUR, I_ORPHAN, I_VOTES = "📚", "👤", "👻", "⭐"
 
 # --- User-Facing Message Functions ---
@@ -53,11 +53,9 @@ class PackageTool:
         self.dry_run = dry_run
         self._check_system_deps()
         try:
-            # CORRECTED: Instantiate Handle directly from the pyalpm module
             self.handle = pyalpm.Handle("/", "/var/lib/pacman")
             self.syncdbs = self.handle.get_syncdbs()
             self.localdb = self.handle.get_localdb()
-        # CORRECTED: Catch the specific AlpmError
         except pyalpm.AlpmError as e:
             raise EnvironmentError(f"Failed to initialize pyalpm: {e}") from e
         self._aur_cache: Dict[str, Dict[str, Any]] = {}
@@ -109,7 +107,6 @@ class PackageTool:
         print(f"\n{Theme.BLUE}{Theme.I_REPO}  Official Repositories{Theme.END}")
         repo_results_found = False
         for db in self.syncdbs:
-            # Use pyalpm's native search capabilities
             for pkg in db.search(" ".join(search_terms)):
                 repo_results_found = True
                 installed_tag = f" [{Theme.GREEN}installed{Theme.END}]" if self.localdb.get_pkg(pkg.name) else ""
@@ -133,19 +130,14 @@ class PackageTool:
     def run_install(self, package_names: Set[str], noconfirm: bool):
         """Runs the complete installation workflow."""
         installed = {pkg.name for pkg in self.localdb.pkgcache}
-        to_process = set()
+        to_process = {name for name in package_names if name not in installed}
         for name in sorted(list(package_names)):
-            if name in installed:
-                print_info(f"Package '{Theme.CYAN}{name}{Theme.END}' is already installed. Skipping.")
-            else:
-                to_process.add(name)
-
+            if name in installed: print_info(f"Package '{Theme.CYAN}{name}{Theme.END}' is already installed. Skipping.")
         if not to_process:
             print_success("All requested packages are already installed or provided."); return
 
         repo_pkgs = sorted([p for p in to_process if self._is_in_repos(p)])
         aur_pkgs_initial = sorted([p for p in to_process if p not in repo_pkgs])
-        
         try:
             full_aur_order = self._resolve_aur_dependencies(aur_pkgs_initial)
         except RuntimeError as e: print_error(str(e)); sys.exit(1)
@@ -176,6 +168,32 @@ class PackageTool:
 
         print_success("All tasks completed.")
 
+    def run_remove(self, package_names: Set[str], noconfirm: bool):
+        """Runs the complete removal workflow."""
+        to_remove = {name for name in package_names if self.localdb.get_pkg(name)}
+        not_installed = package_names - to_remove
+        for name in sorted(list(not_installed)):
+            print_info(f"Package '{Theme.CYAN}{name}{Theme.END}' is not installed. Skipping.")
+        if not to_remove:
+            print_success("No packages to remove."); return
+
+        print(f"\n{Theme.YELLOW}{Theme.I_WARN}  The following packages will be targeted for recursive removal:{Theme.END} {Theme.CYAN}{', '.join(sorted(list(to_remove)))}{Theme.END}")
+        print_warning("This will use 'pacman -Rsc' to remove them and all their unneeded dependencies.")
+
+        cmd = ["sudo", "pacman", "-Rsc", *sorted(list(to_remove))]
+        if noconfirm: cmd.insert(3, "--noconfirm")
+
+        if self.dry_run:
+            print(f"\n{Theme.MAGENTA}{Theme.I_DRY}  [DRY RUN] Would execute command: '{' '.join(cmd)}'{Theme.END}")
+            print_success("Dry run complete. No changes were made."); return
+        
+        print(f"\n{Theme.RED}{Theme.I_TRASH}  Executing removal command...{Theme.END}")
+        proc = subprocess.run(cmd)
+        if proc.returncode == 0:
+            print_success("Packages removed successfully.")
+        else:
+            print_error("Package removal failed. Check the output from pacman above.")
+        
     def _audit_and_install_aur(self, pkg_data, build_dir, noconfirm):
         pkg_name = pkg_data["Name"]
         if not noconfirm:
@@ -205,12 +223,20 @@ def main() -> None:
     if os.geteuid() == 0: print_error("This script must not be run as root."); sys.exit(1)
     parser = argparse.ArgumentParser(description="A professional, unified package utility for Arch Linux.", epilog=f"Version: {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True, help="Available commands")
-    install_p = subparsers.add_parser("install", help="Install or update packages from repositories and the AUR.", aliases=['i'])
+    
+    install_p = subparsers.add_parser("install", help="Install or update packages.", aliases=['i'])
     install_p.add_argument("packages", nargs="+")
-    install_p.add_argument("-y", "--noconfirm", action="store_true", help="Bypass all confirmation prompts.")
+    install_p.add_argument("-y", "--noconfirm", action="store_true", help="Bypass all prompts.")
     install_p.add_argument("--dry-run", action="store_true", help="Preview actions without making changes.")
-    search_p = subparsers.add_parser("search", help="Search for packages in repositories and the AUR.", aliases=['s'])
+
+    search_p = subparsers.add_parser("search", help="Search for packages.", aliases=['s'])
     search_p.add_argument("terms", nargs="+")
+
+    remove_p = subparsers.add_parser("remove", help="Remove packages and their dependencies.", aliases=['r'])
+    remove_p.add_argument("packages", nargs="+")
+    remove_p.add_argument("-y", "--noconfirm", action="store_true", help="Bypass pacman's confirmation prompt.")
+    remove_p.add_argument("--dry-run", action="store_true", help="Preview the removal command.")
+
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
     
@@ -218,9 +244,9 @@ def main() -> None:
         tool = PackageTool(dry_run=getattr(args, 'dry_run', False))
         if args.command in ["install", "i"]: tool.run_install(set(args.packages), args.noconfirm)
         elif args.command in ["search", "s"]: tool.run_search(args.terms)
+        elif args.command in ["remove", "r"]: tool.run_remove(set(args.packages), args.noconfirm)
     except EnvironmentError as e:
-        print_error(str(e))
-        sys.exit(1)
+        print_error(str(e)); sys.exit(1)
 
 if __name__ == "__main__":
     main()
