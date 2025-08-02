@@ -76,7 +76,7 @@ mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/vg0/
 
 
 ``````bash
-pacstrap /mnt base base-devel devtools git neovim arch-install-scripts reflector dracut yay
+pacstrap /mnt base base-devel devtools git neovim arch-install-scripts reflector dracut yay python-pyalpm python-requests
 
 genfstab -U /mnt >>/mnt/etc/fstab
 
