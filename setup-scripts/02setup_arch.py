@@ -129,23 +129,41 @@ def print_error(message: str) -> None:
 # --- Core Logic Functions ---
 
 
-def run_command(command: List[str], cwd: Path = None) -> None:
-    """Executes a shell command, streams its output, and handles errors."""
+def run_command(
+    command: List[str], cwd: Path = None, interactive: bool = False
+) -> None:
+    """
+    Executes a shell command and handles errors.
+    If interactive is True, it allows user input by connecting to the terminal.
+    Otherwise, it streams the command's output.
+    """
     print(f"{Colors.DIM}{Symbols.CMD} Executing: `{' '.join(command)}`{Colors.RESET}")
     try:
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            cwd=cwd,
-        )
-        for line in iter(process.stdout.readline, ""):
-            print(f"{Colors.DIM}  {Symbols.SUB_CMD} {line.strip()}{Colors.RESET}")
+        if interactive:
+            # For interactive commands, connect directly to the user's terminal
+            # stdin, stdout, and stderr are inherited.
+            process = subprocess.Popen(command, cwd=cwd)
+        else:
+            # For non-interactive commands, capture and stream output
+            process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                cwd=cwd,
+            )
+            # Stream output in a formatted way
+            if process.stdout:
+                for line in iter(process.stdout.readline, ""):
+                    print(
+                        f"{Colors.DIM}  {Symbols.SUB_CMD} {line.strip()}{Colors.RESET}"
+                    )
+
         process.wait()
         if process.returncode != 0:
             raise subprocess.CalledProcessError(process.returncode, command)
+
     except FileNotFoundError:
         print_error(
             f"Command not found: `{command[0]}`. Is it installed and in your PATH?"
@@ -230,7 +248,13 @@ def setup_cachyos_repo(work_dir: Path) -> None:
     if not setup_script_path.is_file():
         print_error(f"Setup script not found at expected location: {setup_script_path}")
 
-    run_command([str(setup_script_path)], cwd=repo_dir)
+    # The CachyOS script requires user interaction (Y/n prompt).
+    print_warning(
+        "The CachyOS setup script requires user input to proceed. "
+        "Please follow the on-screen prompts."
+    )
+    # Run the script in interactive mode to allow user input.
+    run_command([str(setup_script_path)], cwd=repo_dir, interactive=True)
     print_success("CachyOS repository setup script executed.")
 
 
@@ -245,19 +269,25 @@ def setup_endeavouros_repo() -> None:
             )
         else:
             lines = pacman_conf_content.splitlines()
+            # Insert before the first official repository to give it priority
             official_repos = ["[core]", "[extra]", "[multilib]"]
             insert_pos = -1
+
+            # Find the best position to insert the repo block
             for i, line in enumerate(lines):
+                # We want to insert it before the first official repo section
                 if any(repo in line for repo in official_repos):
                     insert_pos = i
                     break
 
             if insert_pos == -1:
+                # If no standard repos are found, append to the end.
                 print_warning(
                     "Could not find a standard Arch repo. Appending to end of file."
                 )
                 lines.append(ENDEAVOUROS_REPO_CONFIG)
             else:
+                # Insert the repo config before the found official repo
                 lines.insert(insert_pos, ENDEAVOUROS_REPO_CONFIG)
 
             print_info("Adding EndeavourOS repository to /etc/pacman.conf...")
