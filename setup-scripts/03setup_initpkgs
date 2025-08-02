@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Initial Setup"
 cd
-yay -S --noconfirm --needed zstd curl gcc make acpid arch-audit linux-firmware btrfs-progs networkmanager pkgconf plymouth efibootmgr wget curl texinfo openssh
+yay -S --noconfirm --needed zstd curl gcc make acpid arch-audit linux-firmware btrfs-progs networkmanager pkgconf plymouth efibootmgr wget curl texinfo openssh pyalpm
 
 sudo cp -R $HOME/git/arch-setup/preconfig-files/sshd_config /etc/ssh/
 
