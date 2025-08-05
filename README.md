@@ -197,6 +197,7 @@ monitoring to law enforcement officials.
 ## build toolchain
 linux-api-headers- >glibc >binutils >gcc >glibc >binutils >gcc
 
+``````sh
 #chroot into endeavoros
 cryptsetup open --perf-no_read_workqueue --perf-no_write_workqueue --persistent /dev/nvme0n1p2 cryptroot &&
   mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@ /dev/mapper/cryptroot /mnt &&
@@ -217,3 +218,4 @@ cryptsetup open --perf-no_read_workqueue --perf-no_write_workqueue --persistent 
   mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@var@log@audit /dev/mapper/cryptroot /mnt/var/log/audit &&
   mount -o noatime,compress=zstd:3,space_cache=v2,discard=async,subvol=@snapshots /dev/mapper/cryptroot /mnt/.snapshots &&
   mount /dev/nvme0n1p1 /mnt/boot/efi
+``````
