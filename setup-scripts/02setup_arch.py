@@ -22,7 +22,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 # --- Configuration Constants ---
 
@@ -130,7 +130,7 @@ def print_error(message: str) -> None:
 
 
 def run_command(
-    command: List[str], cwd: Path = None, interactive: bool = False
+    command: List[str], cwd: Optional[Path] = None, interactive: bool = False
 ) -> None:
     """
     Executes a shell command and handles errors.
