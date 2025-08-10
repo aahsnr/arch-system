@@ -47,7 +47,6 @@ let
     isort
     mypy
     flake8
-    pylint
     
     # Visualization
     pillow
@@ -120,9 +119,6 @@ in pkgs.mkShell {
     xz
     lz4
     zstd
-
-    # python lsp server
-    pyright
     
     # SSL certificates
     cacert

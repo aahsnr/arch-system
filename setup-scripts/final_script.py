@@ -166,8 +166,6 @@ def get_all_packages() -> List[str]:
             "pacman-contrib",
             "pkgconf",
             "plymouth",
-            "python-pam",
-            "python-requests",
             "plocate",
             "piavpn",
             "rng-tools",
@@ -185,7 +183,6 @@ def get_all_packages() -> List[str]:
             "xz",
             "zip",
             "zstd",
-            "pyalpm",
             # Apps
             "zathura",
             "zathura-pdf-poppler",
@@ -494,7 +491,7 @@ def _configure_system_services(extra_services: List[str]) -> List[str]:
             "Setting default target to graphical.",
         ),
         (
-            ["sudo", "systemctl", "enable", "--now"] + sorted(list(services_to_enable)),
+            ["sudo", "systemctl", "enable"] + sorted(list(services_to_enable)),
             "Enabling system services.",
         ),
         (
@@ -524,7 +521,7 @@ def _configure_user_services() -> List[str]:
         "wireplumber.service",
     }
     desc = "Enabling user systemd services."
-    cmd = ["systemctl", "--user", "enable", "--now"] + sorted(list(user_services))
+    cmd = ["systemctl", "--user", "enable"] + sorted(list(user_services))
     return [desc] if not execute_command(cmd, desc) else []
 
 
