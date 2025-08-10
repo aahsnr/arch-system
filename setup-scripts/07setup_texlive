@@ -1,2 +1,0 @@
-#!/bin/bash
-yay -S --noconfirm texlive-basic texlive-latex texlive-latexrecommended texlive-latexextra texlive-fontsrecommended texlive-fontsextra texlive-xetex texlive-bibtexextra texlive-mathscience texlive-lang texlive-binextra 

@@ -1,5 +1,0 @@
-#!/bin/bash
-sudo systemctl set-default graphical.target
-systemctl --user enable wireplumber.service pipewire-pulse.socket pipewire.socket pipewire-pulse.service pipewire.service pipewire-pulse.socket pipewire.socket pipewire-pulse.service pipewire.service hypridle.service hyprpaper hyprsunset hyprpolkitagent gnome-keyring-daemon
-sudo systemctl enable --now auditd apparmor jitterentropy sysstat haveged piavpn NetworkManager grub-btrfsd acpid chronyd haveged rngd sshd
-sudo systemctl disable greetd

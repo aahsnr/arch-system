@@ -1,3 +1,0 @@
-#!/bin/bash
-echo "Installing gtk theme"
-yay -S

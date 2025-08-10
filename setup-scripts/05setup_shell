@@ -1,3 +1,0 @@
-#!/bin/bash
-yay -S --noconfirm --needed atuin zsh thefuck bat starship eza tealdeer zoxide direnv
-chsh -s $(which zsh)

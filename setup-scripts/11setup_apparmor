@@ -1,3 +1,0 @@
-#!/bin/bash
-yay -S apparmor apparmor.d-git audit python-notify2 python-psutil 
-sudo systemctl enable --now auditd apparmor.service

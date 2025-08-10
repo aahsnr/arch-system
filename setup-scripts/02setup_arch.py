@@ -13,6 +13,9 @@ up after itself.
 
 USAGE:
     sudo python3 arch_repo_setup_v4_parallel.py
+# TODO
+- add reflector setup
+- add 
 """
 
 import os
@@ -349,7 +352,6 @@ def main() -> None:
         print_error(f"A critical, unexpected error occurred: {e}")
     except KeyboardInterrupt:
         print_error("\nScript execution cancelled by user.")
-
 
 if __name__ == "__main__":
     main()
