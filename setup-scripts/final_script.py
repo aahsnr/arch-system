@@ -15,6 +15,7 @@ Version 5 Improvements:
 - Integrated color-coded icons into all console output for improved readability.
 - The core logic remains robust and unchanged from the previous version.
 """
+
 import subprocess
 import logging
 import sys
@@ -189,7 +190,7 @@ def get_all_packages() -> List[str]:
             "zathura",
             "zathura-pdf-poppler",
             "zen-browser-bin",
-            "zotero-bin",
+            "zotero",
             "deluge-gtk",
             "bleachbit",
             "bitwarden",
@@ -259,7 +260,6 @@ def get_all_packages() -> List[str]:
             # Editors & Dev Tools
             "autoconf",
             "automake",
-            "bash-language-server",
             "cargo",
             "devtools",
             "direnv",
@@ -272,7 +272,7 @@ def get_all_packages() -> List[str]:
             "hunspell-en_us",
             "imagemagick",
             "jansson",
-            "marksman"
+            "marksman",
             "markdownlint-cli",
             "miniconda3",
             "neovim",
@@ -285,20 +285,12 @@ def get_all_packages() -> List[str]:
             "poppler",
             "poppler-glib",
             "pyright",
-            "python-black",
-            "python-debugpy",
-            "python-isort",
             "python-neovim",
             "python-pip",
             "python-pipx",
-            "python-pylint",
             "python-pynvim",
             "ripgrep",
             "rust",
-            "shfmt",
-            "shellcheck",
-            "tectonic",
-            "texlab",
             "tree-sitter-cli",
             "ttf-jetbrains-mono",
             "ttf-jetbrains-mono-nerd",
