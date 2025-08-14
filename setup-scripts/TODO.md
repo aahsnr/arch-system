@@ -1,3 +1,4 @@
 - [ ] add sshd_config manually using python script
 - [ ] setup texlive manually
 - [ ] Clean unneeded packages after installation
+- [ ] Integrate user systemd files into the final-python script
