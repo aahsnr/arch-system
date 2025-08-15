@@ -43,10 +43,8 @@ let
     setuptools
     wheel
     pytest
-    black
-    isort
-    mypy
-    flake8
+    ruff
+    bandit
     
     # Visualization
     pillow
@@ -129,17 +127,17 @@ in pkgs.mkShell {
 
   # Native compilation environment variables
   # This is the correct way to enable -march=native for shell.nix
-  NIX_CFLAGS_COMPILE = "-march=native -mtune=native -O3 -pipe -fomit-frame-pointer";
-  NIX_CXXFLAGS_COMPILE = "-march=native -mtune=native -O3 -pipe -fomit-frame-pointer"; 
+  NIX_CFLAGS_COMPILE = "-march=native -O3 -pipe -flto=auto -fomit-frame-pointer";
+  NIX_CXXFLAGS_COMPILE = "-march=native -O3 -pipe -flto=auto -fomit-frame-pointer"; 
   NIX_LDFLAGS = "-Wl,-O1 -Wl,--as-needed";
   
   # Set compile flags for any local compilations
-  CFLAGS = "-march=native -mtune=native -O3 -pipe -fomit-frame-pointer";
-  CXXFLAGS = "-march=native -mtune=native -O3 -pipe -fomit-frame-pointer";
+  CFLAGS = "-march=native -O3 -pipe -flto=auto -fomit-frame-pointer";
+  CXXFLAGS = "-march=native -O3 -pipe -flto=auto -fomit-frame-pointer";
   LDFLAGS = "-Wl,-O1 -Wl,--as-needed";
   
   # Python-specific compilation flags for packages that compile native extensions
-  CPPFLAGS = "-I${pkgs.python312}/include/python3.12";
+  CPPFLAGS = "-I${pkgs.python313}/include/python3.13";
 
   # Environment setup with native compilation awareness
   shellHook = ''

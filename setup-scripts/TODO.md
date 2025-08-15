@@ -2,3 +2,4 @@
 - [ ] setup texlive manually
 - [ ] Clean unneeded packages after installation
 - [ ] Integrate user systemd files into the final-python script
+- [ ] Add /etc/issue and /etc/issue.net content setup to python script
