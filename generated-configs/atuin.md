@@ -69,7 +69,7 @@ Add to your `~/.zshrc`:
 if command -v atuin &> /dev/null; then
     # Initialize Atuin
     eval "$(atuin init zsh)"
-    
+
     # Configure Atuin to use vim-style keybindings in search
     bindkey -M vicmd '^R' _atuin_search_widget
     bindkey -M viins '^R' _atuin_search_widget
@@ -254,6 +254,7 @@ dnf-history() {
 ## 7. Troubleshooting
 
 ### Service Status
+
 ```bash
 # Check service status
 systemctl --user status atuin.service
@@ -269,6 +270,7 @@ atuin status
 ```
 
 ### Database Issues
+
 ```bash
 # Check database integrity (if sqlite3 is installed)
 if command -v sqlite3 &> /dev/null; then
@@ -304,16 +306,17 @@ With this configuration, you get these vim-style keybindings:
 ## 9. Fedora-Specific Optimizations
 
 ### SELinux Integration
+
 ```bash
 # Function to check SELinux status and optimize Atuin accordingly
 optimize-atuin-selinux() {
     if command -v getenforce &> /dev/null; then
         local selinux_status=$(getenforce)
         echo "SELinux status: $selinux_status"
-        
+
         if [[ "$selinux_status" == "Enforcing" ]]; then
             echo "SELinux is enforcing - checking Atuin contexts..."
-            
+
             # Check if Atuin daemon needs special context
             if ! ls -Z ~/.local/share/atuin/history.db 2>/dev/null | grep -q user_home_t; then
                 echo "Setting proper SELinux context for Atuin database..."
@@ -334,12 +337,13 @@ fi
 ```
 
 ### Package Management Integration
+
 ```bash
 # Enhanced dnf wrapper with Atuin integration
 enhanced_dnf() {
     local cmd="$1"
     shift
-    
+
     case "$cmd" in
         install|in)
             echo "Installing packages: $*"
@@ -368,33 +372,34 @@ enhanced_dnf() {
 ```
 
 ### System Information Integration
+
 ```bash
 # Function to show system info with Atuin context
 show-system-info() {
     echo "=== Fedora 42 System Information ==="
     echo "Kernel: $(uname -r)"
-    
+
     if [[ -f /etc/os-release ]]; then
         echo "Fedora Release: $(grep VERSION_ID /etc/os-release | cut -d'=' -f2 | tr -d '"')"
     fi
-    
+
     echo "Atuin Status: $(systemctl --user is-active atuin.service 2>/dev/null || echo 'not running')"
-    
+
     if command -v atuin &> /dev/null; then
         echo "Atuin Version: $(atuin --version 2>/dev/null | head -n1)"
         local history_count=$(atuin stats 2>/dev/null | grep -E 'Total commands|commands recorded' | awk '{print $NF}' | head -n1)
         echo "History Count: ${history_count:-unknown}"
     fi
-    
+
     if command -v dnf &> /dev/null; then
         local last_update=$(dnf history 2>/dev/null | grep -E 'upgrade|update' | head -n1 | awk '{print $3" "$4}')
         echo "Last Update: ${last_update:-unknown}"
     fi
-    
+
     if command -v getenforce &> /dev/null; then
         echo "SELinux Status: $(getenforce)"
     fi
-    
+
     echo "=== End System Information ==="
 }
 
@@ -403,19 +408,20 @@ alias sysinfo=show-system-info
 ```
 
 ### Btrfs Optimization
+
 ```bash
 # Function to optimize Atuin database for Btrfs
 optimize-atuin-btrfs() {
     local db_path="$HOME/.local/share/atuin/history.db"
-    
+
     if [[ -f "$db_path" ]] && findmnt -n -o FSTYPE / | grep -q btrfs; then
         echo "Optimizing Atuin database for Btrfs..."
-        
+
         # Disable copy-on-write for database file
         if command -v chattr &> /dev/null; then
             chattr +C "$db_path" 2>/dev/null && echo "COW disabled for database"
         fi
-        
+
         # Set no compression for database files
         if command -v btrfs &> /dev/null; then
             btrfs property set "$db_path" compression none 2>/dev/null && echo "Compression disabled for database"
