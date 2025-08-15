@@ -1,5 +1,5 @@
-- [ ] add sshd_config manually using python script
-- [ ] setup texlive manually
-- [ ] Clean unneeded packages after installation
+- [x] add sshd_config manually using python script
+- [ ] setup texlive manually and make sure the script asks for prompt
 - [ ] Integrate user systemd files into the final-python script
-- [ ] Add /etc/issue and /etc/issue.net content setup to python script
+- [x] Add /etc/issue and /etc/issue.net content setup to python script
+- [x] At the end of the python script it should run this as root with confirmation and user prompt: pacman -Qdtq | pacman -Rns - . Default prompt should be Y

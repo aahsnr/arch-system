@@ -1,4 +1,3 @@
-- [ ] Setup neovim from kickstart.nvim and watch the one view, then adapt my personal nixos configuration from a while back
 - [ ] Checkout Rudder at a later date
 - [ ] Write a python script that automatically check AUR packages for any securiy issues
 - [ ] Bring some optimization features from gentoo to arch linux.
