@@ -44,7 +44,7 @@ PAGER /usr/bin/less
 TROFF /usr/bin/groff -Tps -mandoc
 NROFF /usr/bin/groff -Tutf8 -mandoc
 EQN /usr/bin/eqn -Tps
-NEQN /usr/bin/eqn -Tutf8  
+NEQN /usr/bin/eqn -Tutf8
 TBL /usr/bin/tbl
 REFER /usr/bin/refer
 PIC /usr/bin/pic
@@ -128,7 +128,7 @@ if command -v fzf &> /dev/null; then
             --preview-window=right:50%:wrap \
             --bind='enter:execute(echo {} | cut -d" " -f1 | xargs -r man < /dev/tty > /dev/tty)'
     }
-    
+
     # Bind to Ctrl+X Ctrl+M
     zle -N fzman
     bindkey '^X^M' fzman
@@ -158,7 +158,7 @@ mansrc() {
         echo "Usage: mansrc <command>"
         return 1
     fi
-    
+
     local manfile=$(man -w "$1" 2>/dev/null)
     if [[ -n "$manfile" ]]; then
         case "$manfile" in
@@ -204,6 +204,7 @@ export GROFF_NO_SGR=
 ```
 
 Make it executable:
+
 ```bash
 sudo chmod +x /etc/profile.d/man-config.sh
 ```
@@ -229,6 +230,7 @@ exit 0
 ```
 
 Make it executable:
+
 ```bash
 sudo chmod +x /etc/cron.weekly/man-db
 ```
@@ -247,58 +249,26 @@ fi
 add_local_man() {
     local manfile="$1"
     local section="${2:-1}"
-    
+
     if [[ ! -f "$manfile" ]]; then
         echo "Error: File '$manfile' not found"
         return 1
     fi
-    
+
     local mandir="$HOME/.local/share/man/man$section"
     mkdir -p "$mandir"
-    
+
     # Copy and compress if needed
     if [[ "$manfile" == *.gz ]]; then
         cp "$manfile" "$mandir/"
     else
         gzip -c "$manfile" > "$mandir/$(basename "$manfile").gz"
     fi
-    
+
     # Update local man database
     mandb -u "$HOME/.local/share/man" 2>/dev/null
     echo "Added $(basename "$manfile") to local man pages (section $section)"
 }
-```
-
-## HTML Man Page Generation
-
-Create `~/.local/bin/man2html` (ensure `~/.local/bin` is in your PATH):
-
-```bash
-#!/bin/bash
-# Convert man page to HTML
-
-if [[ $# -eq 0 ]]; then
-    echo "Usage: man2html <command> [output.html]"
-    exit 1
-fi
-
-command="$1"
-output="${2:-${command}.html}"
-
-# Check if man page exists
-if ! man -w "$command" &>/dev/null; then
-    echo "Error: Man page for '$command' not found"
-    exit 1
-fi
-
-# Generate HTML
-man "$command" | groff -mandoc -Thtml > "$output"
-echo "Man page for '$command' converted to '$output'"
-```
-
-Make it executable:
-```bash
-chmod +x ~/.local/bin/man2html
 ```
 
 ## Additional Quality-of-Life Improvements
@@ -366,21 +336,25 @@ WHATIS_REGEX 1
 After applying these changes:
 
 1. **Reload your shell configuration:**
+
    ```bash
    source ~/.zshrc
    ```
 
 2. **Update the man database:**
+
    ```bash
    sudo mandb
    ```
 
 3. **Test basic functionality:**
+
    ```bash
    man ls
    ```
 
 4. **Test color support:**
+
    ```bash
    man grep
    ```

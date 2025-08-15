@@ -1,8 +1,8 @@
-Of course. The installer has been updated to include a new function that creates a `variables.sh` file in `/etc/profile.d/` with your specified content. This will set system-wide environment variables for all users on login.
+Of course. The installer has been reviewed and updated to ensure that all custom user systemd services are properly and securely integrated.
 
-This new task has been integrated into the "system configuration" phase of the installer and is also available via the `--configure-system` flag. The installer's summary has been updated to reflect this addition.
+The `user_services.py` module is now the definitive source for managing these services. It programmatically creates secure, sandboxed service files for `pyprland` and `cliphist` (for both text and images), and then enables the full suite of necessary user services for a complete desktop experience.
 
-The entire application, including this new feature, has been rewritten below in the standard modular format.
+This final version represents a complete, modular, and flexible installer that incorporates all previously requested features, from initial system audit to final cleanup. The entire application is rewritten below.
 
 ### How to Use the Flag-Based Application
 
@@ -16,9 +16,8 @@ The usage and prerequisites remain unchanged.
 
 2.  **Download**: Get the complete `arch_installer` directory containing all the files listed below.
 
-3.  **Run**: From the directory _containing_ the `arch_installer` package, execute the following commands:
+3.  **Run**: From the directory _containing_ the `arch_installer` package:
     - **Full Installation (Default):**
-      This runs the entire process and requires the dotfiles URL.
 
       ```bash
       # Usage: python -m arch_installer.install --dotfiles-url <URL>
@@ -26,29 +25,30 @@ The usage and prerequisites remain unchanged.
       ```
 
     - **Running Specific Tasks:**
-      Use flags to execute only the parts you need. For example, to only apply system configurations:
       ```bash
-      python -m arch_installer.install --configure-system
+      # Example: Apply only user configurations and services
+      python -m arch_installer.install --configure-user
       ```
 
 ---
 
 ### Project Structure
 
-The file structure is the same. All subsequent code blocks should be saved with the corresponding file names inside the `arch_installer` directory.
+The file structure is the same. All subsequent code blocks should be saved with their corresponding file names inside the `arch_installer` directory.
 
 ```
 .
 └── arch_installer/
-    ├── __init__.py           # Makes the directory a Python package
-    ├── config.py             # Core configuration variables
-    ├── ui.py                 # User interface elements
-    ├── utils.py              # Core utility functions
-    ├── packages.py           # All package lists
-    ├── system_config.py      # System-wide configuration functions
-    ├── user_config.py        # User-specific configuration functions
-    ├── engine.py             # The main SetupManager orchestrator
-    └── install.py            # Main entry point with flag handling
+    ├── __init__.py
+    ├── config.py
+    ├── ui.py
+    ├── utils.py
+    ├── packages.py
+    ├── system_config.py
+    ├── user_config.py
+    ├── user_services.py      # Definitive module for all user services
+    ├── engine.py
+    └── install.py
 ```
 
 ---
@@ -57,8 +57,6 @@ The file structure is the same. All subsequent code blocks should be saved with 
 
 #### `arch_installer/__init__.py`
 
-_This file can be left empty._
-
 ```python
 # arch_installer/__init__.py
 # This file intentionally left blank.
@@ -66,13 +64,10 @@ _This file can be left empty._
 
 #### `arch_installer/config.py`
 
-_This file holds global constants._
-
 ```python
 # arch_installer/config.py
 import os
 
-# --- Core Configuration ---
 LOG_FILE: str = "arch_setup.log"
 USER_HOME: str = os.path.expanduser("~")
 CURRENT_USER: str = os.getlogin()
@@ -81,8 +76,6 @@ DOTFILES_DIR: str = os.path.join(USER_HOME, ".dots")
 
 #### `arch_installer/ui.py`
 
-_This module centralizes all user interface logic._
-
 ```python
 # arch_installer/ui.py
 import logging
@@ -90,11 +83,9 @@ import sys
 from .config import LOG_FILE
 
 class Colors:
-    """Container for ANSI color escape sequences."""
     HEADER, BLUE, GREEN, YELLOW, RED, ENDC, BOLD = "\033[95m", "\033[94m", "\033[92m", "\033[93m", "\033[91m", "\033[0m", "\033[1m"
 
 class Icons:
-    """Container for Unicode icons for better visual feedback."""
     STEP, INFO, SUCCESS, WARNING, ERROR, PROMPT, FINISH, PACKAGE, DESKTOP, SECURITY = "⚙️", "ℹ️", "✅", "⚠️", "❌", "❓", "🎉", "📦", "🖥️", "🛡️"
 
 def setup_logging() -> None:
@@ -122,8 +113,6 @@ def print_error(message: str) -> None:
 ```
 
 #### `arch_installer/utils.py`
-
-_This module provides core utility functions._
 
 ```python
 # arch_installer/utils.py
@@ -158,8 +147,6 @@ def check_internet_connection() -> bool:
 ```
 
 #### `arch_installer/packages.py`
-
-_This module categorizes all software to be installed._
 
 ```python
 # arch_installer/packages.py
@@ -197,8 +184,6 @@ class PackageLists:
 
 #### `arch_installer/system_config.py`
 
-_This module handles all system-wide configurations, now including the new environment variables script._
-
 ```python
 # arch_installer/system_config.py
 import os
@@ -206,37 +191,22 @@ import shutil
 import subprocess
 import tempfile
 from typing import List
-
 from .config import CURRENT_USER, DOTFILES_DIR
 from .ui import Colors, Icons, print_error, print_info, print_success, print_warning
 from .utils import execute_command
 
-# --- Private Content Helpers ---
-
 def _get_variables_sh_content() -> str:
-    """Returns the content for /etc/profile.d/variables.sh."""
     return """#!/bin/bash
-# System-wide environment variables.
-# Override these in ~/.bashrc or equivalent for user-specific settings.
 export EDITOR=${EDITOR:-/usr/bin/emacs}
 export PAGER=${PAGER:-/usr/bin/less}
 export BROWSER="brave-browser"
 export TERMINAL="foot"
-
-export PATH=$PATH:$HOME/.cargo/bin
-export PATH=$PATH:$HOME/go/bin
-export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$HOME/.config/emacs/bin
-export PATH=$PATH:$HOME/.npm-global/bin
-export PATH=$PATH:/var/lib/flatpak/exports/bin
-
-# NVIDIA HPC SDK paths
+export PATH=$PATH:$HOME/.cargo/bin:$HOME/go/bin:$HOME/.local/bin:$HOME/.config/emacs/bin:$HOME/.npm-global/bin:/var/lib/flatpak/exports/bin
 if [ -d "/opt/nvidia/hpc_sdk" ]; then
     NVARCH=$(uname -s)_$(uname -m)
     export NVARCH
     NVCOMPILERS=/opt/nvidia/hpc_sdk
     export NVCOMPILERS
-    # This assumes a single, known version of the SDK.
     if [ -d "$NVCOMPILERS/$NVARCH/23.9" ]; then
         MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/23.9/compilers/man
         export MANPATH
@@ -249,35 +219,25 @@ fi
 """
 
 def _get_limits_conf_content() -> str:
-    """Returns the content for /etc/security/limits.conf."""
     return "* soft core 0\n* hard core 0\n* hard nproc 15\n* hard rss 10000\n* - maxlogins 2\n@dev hard core 100000\n@dev soft nproc 20\n@dev hard nproc 35\n@dev - maxlogins 10"
 
 def _get_login_banner_content() -> str:
-    """Returns the security banner content for /etc/issue and /etc/issue.net."""
     return "-- WARNING -- This system is for the use of authorized users only. Individuals using this computer system without authority or in excess of their authority are subject to having all their activities on this system monitored and recorded by system personnel. Anyone using this system expressly consents to such monitoring and is advised that if such monitoring reveals possible evidence of criminal activity system personal may provide the evidence of such monitoring to law enforcement officials."
 
 def _get_sshd_config_content() -> str:
-    """Returns the hardened sshd_config content."""
     return "# /etc/ssh/sshd_config\nInclude /etc/ssh/sshd_config.d/*.conf\nPort 43\nLogLevel VERBOSE\nMaxAuthTries 3\nMaxSessions 2\nPubkeyAuthentication yes\nKbdInteractiveAuthentication no\nUsePAM yes\nAllowAgentForwarding no\nAllowTcpForwarding no\nX11Forwarding no\nPrintMotd no\nTCPKeepAlive no\nClientAliveCountMax 2\nAcceptEnv LANG LC_*\nSubsystem sftp /usr/lib/openssh/sftp-server"
 
-# --- Public Configuration Functions ---
-
 def configure_environment_variables() -> bool:
-    """Creates /etc/profile.d/variables.sh to set system-wide environment variables."""
     print_info(f"{Icons.SECURITY} Setting system-wide environment variables.")
     content = _get_variables_sh_content()
     try:
         with tempfile.NamedTemporaryFile(mode='w', delete=False, encoding='utf-8') as tmp:
-            tmp.write(content)
-            tmp_path = tmp.name
+            tmp.write(content); tmp_path = tmp.name
         target = "/etc/profile.d/variables.sh"
-        # 755 permissions to make it executable, as it has a shebang
         return (execute_command(["sudo", "mv", tmp_path, target], f"Moving script to '{target}'") and
                 execute_command(["sudo", "chown", "root:root", target], f"Setting ownership for {target}") and
                 execute_command(["sudo", "chmod", "755", target], f"Setting permissions for {target}"))
-    except Exception as e:
-        print_error(f"Failed to write environment variables script: {e}")
-        return False
+    except Exception as e: print_error(f"Failed to write environment variables script: {e}"); return False
 
 def configure_security_limits() -> bool:
     print_info(f"{Icons.SECURITY} Setting user resource limits in /etc/security/limits.conf.")
@@ -364,8 +324,6 @@ def cleanup_orphan_packages() -> bool:
 
 #### `arch_installer/user_config.py`
 
-_This module handles all user-specific configurations._
-
 ```python
 # arch_installer/user_config.py
 import os
@@ -374,7 +332,6 @@ from .ui import Icons, print_info, print_warning
 from .utils import execute_command
 
 def configure_caelestia() -> bool:
-    """Configures the Caelestia desktop shell for the user."""
     print_info(f"{Icons.DESKTOP} Configuring Caelestia Desktop Shell.")
     config_dir = os.path.join(USER_HOME, ".config", "quickshell")
     if not os.path.exists(config_dir):
@@ -390,14 +347,7 @@ def configure_caelestia() -> bool:
     return (execute_command(["sudo", "mkdir", "-p", dest_dir], f"Creating directory '{dest_dir}'.") and
             execute_command(["sudo", "mv", output_file, os.path.join(dest_dir, 'beat_detector')], "Installing binary."))
 
-def configure_user_services() -> bool:
-    """Enables user-specific services."""
-    print_info("Enabling user-specific services.")
-    services = {"hypridle.service", "hyprpaper.service", "hyprpolkitagent.service", "hyprsunset.service", "pipewire.service", "pipewire.socket", "pipewire-pulse.service", "pipewire-pulse.socket", "uwsm.service", "wireplumber.service"}
-    return execute_command(["systemctl", "--user", "enable"] + sorted(list(services)), "Enabling user services.")
-
 def configure_git() -> bool:
-    """Configures global Git settings for the user."""
     print_info("Configuring global Git settings.")
     configs = [
         (["git", "config", "--global", "user.name", "aahsnr"], "Configuring Git user name."),
@@ -407,16 +357,120 @@ def configure_git() -> bool:
     return all(execute_command(cmd, desc) for cmd, desc in configs)
 
 def configure_npm() -> bool:
-    """Configures the NPM global directory for the user."""
     print_info("Configuring NPM global directory.")
     npm_dir = os.path.join(USER_HOME, ".npm-global")
     os.makedirs(npm_dir, exist_ok=True)
     return execute_command(["npm", "config", "set", "prefix", npm_dir], "Setting NPM global prefix.")
 ```
 
-#### `arch_installer/engine.py`
+#### `arch_installer/user_services.py`
 
-_The main orchestrator, responsible for high-level tasks like bootstrapping and package installation._
+```python
+# arch_installer/user_services.py
+import os
+import shutil
+from .config import USER_HOME
+from .ui import Icons, print_error, print_info
+from .utils import execute_command
+
+def _get_pyprland_service_content(exec_path: str) -> str:
+    return f"""[Unit]
+Description=Pyprland - Hyprland IPC gateway
+Documentation=https://github.com/hyprland-community/pyprland
+PartOf=graphical-session.target
+After=graphical-session.target
+[Service]
+Type=simple
+ExecStart={exec_path}
+Restart=on-failure
+RestartSec=1
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=%t/hypr
+[Install]
+WantedBy=graphical-session.target
+"""
+
+def _get_cliphist_service_content(exec_start: str, service_type: str) -> str:
+    return f"""[Unit]
+Description=Clipboard History Manager ({service_type})
+Documentation=https://github.com/sentriz/cliphist
+PartOf=graphical-session.target
+After=graphical-session.target
+[Service]
+Type=simple
+ExecStart={exec_start}
+Restart=on-failure
+RestartSec=1
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=%h/.local/share/cliphist/
+[Install]
+WantedBy=graphical-session.target
+"""
+
+def _create_service_file(service_name: str, content: str) -> bool:
+    """Helper to write a systemd service file."""
+    service_dir = os.path.join(USER_HOME, ".config", "systemd", "user")
+    os.makedirs(service_dir, exist_ok=True)
+    try:
+        with open(os.path.join(service_dir, service_name), "w", encoding="utf-8") as f:
+            f.write(content)
+        return True
+    except IOError as e:
+        print_error(f"Failed to write {service_name}: {e}")
+        return False
+
+def configure_all_user_services() -> bool:
+    """Creates and enables all custom and standard user systemd services."""
+    print_step("Configuring User Systemd Services")
+
+    # 1. Create custom service files programmatically
+    print_info(f"{Icons.DESKTOP} Creating custom service files.")
+    pypr_path = shutil.which("pypr")
+    wl_paste_path = shutil.which("wl-paste")
+    cliphist_path = shutil.which("cliphist")
+
+    if pypr_path:
+        _create_service_file("pyprland.service", _get_pyprland_service_content(pypr_path))
+    else: print_error("'pypr' not found, skipping service creation.")
+
+    if wl_paste_path and cliphist_path:
+        _create_service_file("cliphist-text.service", _get_cliphist_service_content(f"{wl_paste_path} --watch {cliphist_path} store", "Text"))
+        _create_service_file("cliphist-image.service", _get_cliphist_service_content(f"{wl_paste_path} --type image/png --watch {cliphist_path} store", "Image"))
+    else: print_error("'wl-paste' or 'cliphist' not found, skipping service creation.")
+
+    # 2. Reload the systemd daemon to recognize the new files
+    if not execute_command(["systemctl", "--user", "daemon-reload"], "Reloading user systemd daemon."):
+        return False
+
+    # 3. Enable all required user services (both custom and pre-packaged)
+    print_info("Enabling user services.")
+    services_to_enable = {
+        "hypridle.service", "hyprpaper.service", "hyprpolkitagent.service",
+        "hyprsunset.service", "pipewire.service", "pipewire.socket",
+        "pipewire-pulse.service", "pipewire-pulse.socket", "uwsm.service",
+        "wireplumber.service", "pyprland.service", "cliphist-text.service",
+        "cliphist-image.service"
+    }
+    return execute_command(["systemctl", "--user", "enable"] + sorted(list(services_to_enable)), "Enabling all user systemd services.")
+```
+
+#### `arch_installer/engine.py`
 
 ```python
 # arch_installer/engine.py
@@ -425,17 +479,14 @@ import shutil
 import subprocess
 import tempfile
 from typing import Tuple
-
 from .config import DOTFILES_DIR, USER_HOME
 from .packages import PackageLists
-from .ui import (Icons, print_error, print_info, print_step, print_success,
-                 print_warning)
+from .ui import Icons, print_error, print_info, print_step, print_success, print_warning
 from .utils import check_internet_connection, execute_command
 
 class SetupManager:
     """Orchestrates the main steps of the installation process."""
     def run_pre_cleanup_step(self) -> bool:
-        """Installs awk and logs currently installed packages."""
         print_step("Running Initial System Audit")
         if not execute_command(["sudo", "pacman", "-S", "--needed", "--noconfirm", "awk"], "Ensuring 'awk' is available."): return False
         try:
@@ -452,7 +503,6 @@ class SetupManager:
             print_error(f"Failed to audit packages: {e}"); return False
 
     def run_bootstrap_checks(self, dotfiles_url: str) -> bool:
-        """Runs all pre-flight checks, including SSH validation."""
         print_step("Running Bootstrap Checks")
         checks = { "Must not be run as root": lambda: os.geteuid() != 0, "Internet connection available": check_internet_connection, "`git` command installed": lambda: shutil.which("git") is not None }
         if dotfiles_url.startswith("git@"):
@@ -467,7 +517,6 @@ class SetupManager:
         return True
 
     def ensure_yay_installed(self) -> bool:
-        """Checks for 'yay' and installs it if absent."""
         if shutil.which("yay"): print_success("'yay' is already installed."); return True
         print_step(f"{Icons.PACKAGE} Installing AUR Helper (yay)")
         if not execute_command(["sudo", "pacman", "-S", "--needed", "--noconfirm", "base-devel", "git"], "Installing build dependencies."): return False
@@ -478,7 +527,6 @@ class SetupManager:
         print_error("Installation failed. 'yay' command not found."); return False
 
     def run_package_installation(self, extra_packages: list) -> bool:
-        """Installs all system packages via 'yay'."""
         print_step("Installing System Packages")
         packages_to_install = PackageLists.get_all()
         if extra_packages: packages_to_install = sorted(list(set(packages_to_install).union(extra_packages)))
@@ -486,7 +534,6 @@ class SetupManager:
         return execute_command(["yay", "-S", "--needed", "--noconfirm"] + packages_to_install, "Installing all packages.")
 
     def prompt_for_asus_setup(self) -> Tuple[list, list]:
-        """Prompts the user for optional Asus-specific setup."""
         print_step("Asus ROG Laptop Configuration (Optional)")
         prompt = f"{Icons.PROMPT} Run Asus-specific setup (G14/ROG)? [y/N]: "
         try:
@@ -506,23 +553,18 @@ class SetupManager:
 
 #### `arch_installer/install.py`
 
-_The main entry point, with the argparse logic to handle flags and orchestrate the different modules._
-
 ```python
 # arch_installer/install.py
 import argparse
 import sys
 import os
-
 from .config import CURRENT_USER, USER_HOME, DOTFILES_DIR
 from .engine import SetupManager
-from .ui import (Colors, Icons, print_error, print_info, print_step,
-                 print_success, print_warning, setup_logging)
+from .ui import Colors, Icons, print_error, print_info, print_step, print_success, print_warning, setup_logging
 from .utils import execute_command
-from . import system_config, user_config
+from . import system_config, user_config, user_services
 
 def print_summary_and_confirm(dotfiles_url: str):
-    """Prints a summary of the full installation and asks for confirmation."""
     print_step("Installation Plan Summary")
     summary = f"""
 This script will perform a full installation, including the following actions:
@@ -532,8 +574,9 @@ This script will perform a full installation, including the following actions:
 {Colors.HEADER}2. Core Installation & Configuration:{Colors.ENDC}
    - Install 'yay' (AUR Helper) and a large set of system packages.
    - {Icons.SECURITY} Set system-wide environment variables, resource limits, login banners, and a hardened SSH config.
-   - Configure and enable essential system and user services.
+   - Configure and enable essential system services.
    - Set up Git, NPM, and Zsh as the default shell for '{CURRENT_USER}'.
+   - {Icons.DESKTOP} Create and enable secure user systemd services for pyprland, cliphist, and more.
 {Colors.HEADER}3. Hardware-Specific Setup:{Colors.ENDC}
    - You will be prompted to run an {Colors.YELLOW}optional{Colors.ENDC} setup for Asus ROG laptops.
 {Colors.HEADER}4. Final Cleanup:{Colors.ENDC}
@@ -549,7 +592,6 @@ This script will perform a full installation, including the following actions:
         print_info("\nNo input received. Aborting."); sys.exit(0)
 
 def main() -> None:
-    """Main function to parse arguments and orchestrate the setup process."""
     parser = argparse.ArgumentParser(description="A modular installer for a personalized Arch Linux setup.", epilog="If no flags are provided, a full installation is attempted, which requires --dotfiles-url.")
     parser.add_argument("--dotfiles-url", help="HTTPS or SSH URL of the dotfiles repository.")
     parser.add_argument("--bootstrap", action="store_true", help="Run pre-flight checks and clone dotfiles.")
@@ -592,7 +634,7 @@ def main() -> None:
             (lambda: system_config.configure_system_services(asus_services), "Enable system services"),
             (system_config.configure_shell, "Change default shell"),
             (user_config.configure_caelestia, "Configure Caelestia"),
-            (user_config.configure_user_services, "Enable user services"),
+            (user_services.configure_all_user_services, "Configure user services"),
             (user_config.configure_git, "Configure Git"),
             (user_config.configure_npm, "Configure NPM")
         ]:
@@ -600,7 +642,7 @@ def main() -> None:
 
         if not system_config.cleanup_orphan_packages(): failed_tasks.append("Clean up orphan packages")
     else:
-        if any([args.install_packages, args.configure_system, args.cleanup]):
+        if any([args.install_packages, args.configure_system, args.cleanup, args.configure_user]):
             print_step("Acquiring Administrator Privileges")
             if not execute_command(["sudo", "-v"], "Caching sudo credentials for requested tasks."):
                 print_error("Could not acquire sudo privileges. Aborting."); sys.exit(1)
@@ -618,26 +660,13 @@ def main() -> None:
         if args.configure_system:
             print_step("Applying System-Wide Configurations")
             if not os.path.isdir(DOTFILES_DIR): print_warning("Dotfiles directory not found. Some configs may fail.")
-            for func, name in [
-                (system_config.configure_environment_variables, "Set environment variables"),
-                (system_config.configure_security_limits, "Set security limits"),
-                (system_config.configure_login_banners, "Set login banners"),
-                (system_config.configure_sshd, "Configure SSH daemon"),
-                (system_config.configure_symlinks, "Create system symlinks"),
-                (lambda: system_config.configure_system_services([]), "Enable system services"),
-                (system_config.configure_shell, "Change default shell")
-            ]:
+            for func, name in [(system_config.configure_environment_variables, "Set environment variables"), (system_config.configure_security_limits, "Set security limits"), (system_config.configure_login_banners, "Set login banners"), (system_config.configure_sshd, "Configure SSH daemon"), (system_config.configure_symlinks, "Create system symlinks"), (lambda: system_config.configure_system_services([]), "Enable system services"), (system_config.configure_shell, "Change default shell")]:
                 if not func(): failed_tasks.append(name)
 
         if args.configure_user:
             print_step("Applying User-Specific Configurations")
             if not os.path.isdir(DOTFILES_DIR): print_warning("Dotfiles directory not found. Some configs may fail.")
-            for func, name in [
-                (user_config.configure_caelestia, "Configure Caelestia"),
-                (user_config.configure_user_services, "Enable user services"),
-                (user_config.configure_git, "Configure Git"),
-                (user_config.configure_npm, "Configure NPM")
-            ]:
+            for func, name in [(user_config.configure_caelestia, "Configure Caelestia"), (user_services.configure_all_user_services, "Configure user services"), (user_config.configure_git, "Configure Git"), (user_config.configure_npm, "Configure NPM")]:
                 if not func(): failed_tasks.append(name)
 
         if args.cleanup:
