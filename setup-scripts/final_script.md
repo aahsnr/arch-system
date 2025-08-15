@@ -358,7 +358,7 @@ def configure_caelestia() -> bool:
 def configure_user_services() -> bool:
     """Enables user-specific services."""
     print_info("Enabling user-specific services.")
-    services = {"hypridle.service", "hyprpaper.service", "hyprpolkitagent.service", "hyprsunset.service", "pipewire.service", "pipewire.socket", "pipewire-pulse.service", "pipewire-pulse.socket", "uwsm.service", "wireplumber.service"}
+    services = {"gnome-keyring-daemon", "hypridle.service", "hyprpaper.service", "hyprpolkitagent.service", "hyprsunset.service", "pipewire.service", "pipewire.socket", "pipewire-pulse.service", "pipewire-pulse.socket", "uwsm.service", "wireplumber.service"}
     return execute_command(["systemctl", "--user", "enable"] + sorted(list(services)), "Enabling user services.")
 
 def configure_git() -> bool:
