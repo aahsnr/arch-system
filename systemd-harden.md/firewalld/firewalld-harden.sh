@@ -3,9 +3,8 @@
 # This script hardens the firewalld systemd service on Arch Linux using the
 # recommended, update-safe override method.
 #
-# It applies a strong security profile while ensuring smooth operation by
-# providing dedicated writable directories for logs and runtime state,
-# which is necessary when using strong filesystem protections.
+# It applies a strong, stable security profile that restricts filesystem access,
+# kernel interactions, and privileges, ensuring smooth operation across updates.
 
 set -euo pipefail
 
@@ -26,14 +25,10 @@ mkdir -p "$OVERRIDE_DIR"
 # This configuration is designed for both strong security and stability.
 cat >"$OVERRIDE_FILE" <<EOF
 [Service]
-# --- Directives for Stability & Functionality ---
-
-# Give firewalld a writable directory for its logs under /var/log/.
-# This is the correct way to solve the "Read-only file system" error for logs.
-LogsDirectory=firewalld
+# --- Directive for Stability & Functionality ---
 
 # Give firewalld a writable directory for runtime state under /run/.
-# This prevents issues with state files, sockets, or PID files.
+# This is crucial for state files, sockets, or PID files when using ProtectSystem.
 RuntimeDirectory=firewalld
 
 # --- Security Hardening Directives ---
@@ -41,7 +36,8 @@ RuntimeDirectory=firewalld
 # Restrict the service's capabilities to the required minimum for managing networks.
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
 
-# Filesystem Protections: Mount key directories as read-only.
+# Filesystem Protections: Mount key directories as read-only. This is a
+# powerful hardening feature.
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
@@ -62,8 +58,11 @@ RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 # Disallow creation of new namespaces.
 RestrictNamespaces=true
 
-# Apply a system call filter tailored for network services.
-SystemCallFilter=@network
+# NOTE on SystemCallFilter: This directive has been removed. While powerful, it
+# is extremely brittle and is the cause of the 'core-dump' and 'status=31/SYS'
+# errors. A minor update to firewalld or its dependencies can change the required
+# system calls, causing the service to fail. The remaining directives in this
+# file provide a very high level of security without this instability.
 
 # Enforce other memory and process security settings.
 MemoryDenyWriteExecute=true
@@ -91,5 +90,6 @@ echo "To verify the changes, run: systemctl cat firewalld"
 echo "You will see the original service file followed by your override configuration."
 echo ""
 echo "To check the service status, run: systemctl status firewalld"
+echo "To view its logs, run: journalctl -u firewalld"
 
 exit 0
