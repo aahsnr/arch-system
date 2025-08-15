@@ -1,4 +1,5 @@
 - [x] add sshd_config manually using python script
+- [x] integrated variables.sh file into /etc/profile.d/
 - [ ] setup texlive manually and make sure the script asks for prompt
 - [ ] Integrate user systemd files into the final-python script
 - [x] Add /etc/issue and /etc/issue.net content setup to python script
