@@ -1,3 +1,6 @@
+- [ ] Integrate the following user home configurations into the arch-installer program
+  - [ ]
+
 - [x] add sshd_config manually using python script
 - [x] integrated variables.sh file into /etc/profile.d/
 - [ ] setup texlive manually and make sure the script asks for prompt

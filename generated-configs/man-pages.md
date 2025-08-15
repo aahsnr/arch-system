@@ -1,399 +1,247 @@
-# Advanced Man Page Configuration for Fedora Linux 42
+Of course. Here is the rewritten guide, updated to store all Zsh-related configurations in a modular `~/.config/zsh/man.zsh` file for a cleaner and more organized setup. The Markdown has also been corrected for consistency.
 
-This configuration provides an optimized man page experience with quality-of-life improvements, Zsh integration, and modern theming specifically tailored for Fedora Linux 42.
+---
 
-## Prerequisites
+# Advanced Man Page Configuration for Arch Linux (Tokyo Night Theme)
 
-Install the required packages using DNF:
+This guide provides an optimized `man` page experience for Arch Linux, featuring a beautiful Tokyo Night color theme, quality-of-life improvements, and a clean, modular Zsh integration.
+
+---
+
+## 1. Prerequisites
+
+First, install the necessary packages using `pacman`. The `base-devel` group, which is highly recommended for any Arch system, already includes `man-db`.
 
 ```bash
-# Core man page system
-sudo dnf install man-db man-pages less zsh groff-base
+# Core man page system and pager
+sudo pacman -Syu man-db man-pages less zsh
 
-# Additional documentation
-sudo dnf install man-pages-posix man-pages-devel
-
-# Optional utilities for enhanced experience
-sudo dnf install fzf ripgrep tldr
+# Optional utilities for an enhanced experience
+sudo pacman -S fzf ripgrep tldr
 ```
 
-## Core Configuration (`/etc/man_db.conf`)
+> **Note:** Unlike some other distributions, Arch Linux includes POSIX and developer pages within the main `man-pages` package, so no separate packages are needed.
 
-The manpath configuration file is used by the manual page utilities to assess users' manpaths at run time. Here's the optimized configuration:
+---
+
+## 2. Core Configuration (`/etc/man_db.conf`)
+
+The default `man_db.conf` on Arch Linux is generally well-configured. The following is a minimal, optimized version that ensures correct paths and modern features while removing historical or redundant entries.
 
 ```conf
-# Optimized man_db.conf for Fedora Linux 42
+# Optimized /etc/man_db.conf for Arch Linux
 
-# System manual paths - standard Fedora locations
-MANPATH_MAP /usr/bin /usr/share/man
-MANPATH_MAP /usr/local/bin /usr/local/share/man
-MANPATH_MAP /usr/X11R6/bin /usr/X11R6/man
+# Every automatically generated MANPATH includes these.
+MANDATORY_MANPATH     /usr/share/man
+MANDATORY_MANPATH     /usr/local/share/man
 
-# System manual paths
-MANPATH /usr/share/man
-MANPATH /usr/local/share/man
-MANPATH /usr/X11R6/man
+# Define the search order for manual page sections.
+SECTIONS              1 1p 8 2 3 3p 4 5 6 7 9 0p n l p o
 
-# Additional paths for development tools
-MANPATH /usr/share/man/overrides
+# Default pager. Can be overridden by the user's PAGER environment variable.
+PAGER                 /usr/bin/less
 
-# Pager configuration
-PAGER /usr/bin/less
-
-# Formatting tools - using system defaults
-TROFF /usr/bin/groff -Tps -mandoc
-NROFF /usr/bin/groff -Tutf8 -mandoc
-EQN /usr/bin/eqn -Tps
-NEQN /usr/bin/eqn -Tutf8
-TBL /usr/bin/tbl
-REFER /usr/bin/refer
-PIC /usr/bin/pic
-
-# Compression support
-COMPRESS /usr/bin/gzip -c7
-COMPRESS_EXT .gz
-DECOMPRESS /usr/bin/gzip -dc
-BZIP2 /usr/bin/bzip2 -c
-BZIP2_EXT .bz2
-DECOMPRESS_BZIP2 /usr/bin/bzip2 -dc
-XZ /usr/bin/xz -c
-XZ_EXT .xz
-DECOMPRESS_XZ /usr/bin/xz -dc
-ZSTD /usr/bin/zstd -c
-ZSTD_EXT .zst
-DECOMPRESS_ZSTD /usr/bin/zstd -dc
-
-# Database configuration
-MANDATORY_MANPATH /usr/share/man
-MANDATORY_MANPATH /usr/local/share/man
-
-# Section order
-SECTIONS 1 1p 8 2 3 3p 4 5 6 7 9 0p n l p o 1x 2x 3x 4x 5x 6x 7x 8x
+# Default formatting tools. These are standard and rarely need changing.
+NROFF                 /usr/bin/groff -Tutf8 -mandoc
+TROFF                 /usr/bin/groff -Tps -mandoc
 ```
 
-## Enhanced Man Page Viewing with Colors
+---
 
-### Method 1: Using LESS_TERMCAP (Recommended)
+## 3. System-wide Environment Configuration
 
-Add to your `~/.zshrc`:
+Create a file to set sane defaults for all users. This ensures a consistent experience and enables modern terminal color support, which is critical for theming.
 
-```zsh
-# Colored man pages using LESS_TERMCAP
-export LESS_TERMCAP_mb=$'\033[1;31m'     # begin blinking
-export LESS_TERMCAP_md=$'\033[1;36m'     # begin bold
-export LESS_TERMCAP_me=$'\033[0m'        # end mode
-export LESS_TERMCAP_se=$'\033[0m'        # end standout-mode
-export LESS_TERMCAP_so=$'\033[45;93m'    # begin standout-mode - info box
-export LESS_TERMCAP_ue=$'\033[0m'        # end underline
-export LESS_TERMCAP_us=$'\033[4;93m'     # begin underline
+Create `/etc/profile.d/man-config.sh`:
 
-# Less options for better viewing
-export LESS="-R -M -i -j.5 -z-2 -F -X"
+````bash
+#!/bin/bash
+# System-wide man page configuration for Arch Linux
+
+# Set a reasonable default man page width
+export MANWIDTH=80
+
+# Sane defaults for less, the default pager
+export LESS="-R -M -i -j.5"
 export LESSCHARSET=utf-8
 
-# Man page width
-export MANWIDTH=80
+# Unset GROFF_NO_SGR to enable modern SGR escape codes for color support.
+# Some systems incorrectly set this, forcing less-compatible formatting.
+unset GROFF_NO_SGR
+```Then, make it executable:
+```bash
+sudo chmod +x /etc/profile.d/man-config.sh
+````
+
+---
+
+## 4. Zsh Configuration
+
+For a clean and maintainable setup, all Zsh configurations for `man` pages will be placed in a dedicated file.
+
+### Step 4.1: Create the Zsh Configuration File
+
+First, create the directory if it doesn't exist:
+
+```bash
+mkdir -p ~/.config/zsh
 ```
 
-### Method 2: Using Catppuccin Colors
-
-For a more sophisticated color scheme, add this to `~/.zshrc`:
+Now, create the file `~/.config/zsh/man.zsh` and add all of the following content to it:
 
 ```zsh
-# Catppuccin Mocha theme for man pages
-man() {
-    env \
-    LESS_TERMCAP_mb=$(printf "\033[1;31m") \
-    LESS_TERMCAP_md=$(printf "\033[1;36m") \
-    LESS_TERMCAP_me=$(printf "\033[0m") \
-    LESS_TERMCAP_se=$(printf "\033[0m") \
-    LESS_TERMCAP_so=$(printf "\033[01;44;33m") \
-    LESS_TERMCAP_ue=$(printf "\033[0m") \
-    LESS_TERMCAP_us=$(printf "\033[1;32m") \
-    man "$@"
-}
-```
+# ~/.config/zsh/man.zsh
+# Zsh configurations for an enhanced man page experience
 
-## Enhanced Zsh Integration
+# --- Section 1: Theming (Tokyo Night) ---
+#
+# Set colors for man pages using LESS_TERMCAP variables.
+export LESS_TERMCAP_mb=$'\e[1;91m'      # begin blinking -> bright red (for emphasis)
+export LESS_TERMCAP_md=$'\e[1;34m'      # begin bold -> blue
+export LESS_TERMCAP_me=$'\e[0m'         # end mode
+export LESS_TERMCAP_se=$'\e[0m'         # end standout-mode
+export LESS_TERMCAP_so=$'\e[44;93m'     # begin standout-mode -> blue bg, bright yellow fg
+export LESS_TERMCAP_ue=$'\e[0m'         # end underline
+export LESS_TERMCAP_us=$'\e[1;32m'      # begin underline -> green
 
-Add these functions to your `~/.zshrc`:
+# Add options to exit if content fits on one screen (-F) and clear screen on exit (-X)
+export LESS="$LESS -F -X"
 
-```zsh
-# Fuzzy man page search with fzf
+# --- Section 2: Helper Functions and Aliases ---
+#
+# Fuzzy man page search with fzf, bound to Ctrl+X, Ctrl+M
 if command -v fzf &> /dev/null; then
     fzman() {
-        man -k . 2>/dev/null | fzf \
+        man -k . | awk 'NF' | fzf \
             --prompt='Man> ' \
-            --preview='echo {} | cut -d" " -f1 | xargs -r man 2>/dev/null | head -20' \
-            --preview-window=right:50%:wrap \
-            --bind='enter:execute(echo {} | cut -d" " -f1 | xargs -r man < /dev/tty > /dev/tty)'
+            --preview='echo {} | cut -d"(" -f1 | xargs -r man 2>/dev/null' \
+            --preview-window='right:60%:wrap' \
+            --bind='enter:execute(echo {} | cut -d"(" -f1 | xargs -r man < /dev/tty > /dev/tty)'
     }
-
-    # Bind to Ctrl+X Ctrl+M
     zle -N fzman
-    bindkey '^X^M' fzman
+    bindkey '^x^m' fzman
 fi
 
-# Search man pages by content
+# Search man pages by content (wrapper for `man -K`)
 mansearch() {
     if [[ $# -eq 0 ]]; then
-        echo "Usage: mansearch <search_term>"
+        echo "Usage: mansearch <search_term>" >&2
         return 1
     fi
-    man -K "$*" 2>/dev/null
+    man -K "$@"
 }
 
-# Get man page file path
+# Get the file path of a man page (wrapper for `man --where`)
 manpath() {
     if [[ $# -eq 0 ]]; then
-        echo "Usage: manpath <command>"
+        echo "Usage: manpath <command>" >&2
         return 1
     fi
-    man -w "$1" 2>/dev/null
+    man --where "$1"
 }
 
-# View man page source
+# View the raw source of a man page
 mansrc() {
     if [[ $# -eq 0 ]]; then
-        echo "Usage: mansrc <command>"
+        echo "Usage: mansrc <command>" >&2
         return 1
     fi
-
-    local manfile=$(man -w "$1" 2>/dev/null)
-    if [[ -n "$manfile" ]]; then
-        case "$manfile" in
-            *.gz) zcat "$manfile" ;;
-            *.bz2) bzcat "$manfile" ;;
-            *.xz) xzcat "$manfile" ;;
-            *) cat "$manfile" ;;
-        esac | less
+    local manfile
+    manfile=$(man -w "$1")
+    if [[ -n "$manfile" && -f "$manfile" ]]; then
+        zless "$manfile"
     else
-        echo "Man page for '$1' not found"
+        echo "Man page for '$1' not found" >&2
         return 1
     fi
 }
 
-# Enhanced man page completion
+# Convenient aliases
+alias mank='man -k' # Search by keyword (apropos)
+alias manf='man -f' # Search by name (whatis)
+
+# --- Section 3: Enhanced Zsh Completion ---
+#
 zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:manuals.*' insert-sections true
 zstyle ':completion:*:man:*' menu yes select
 
-# Aliases for convenience
-alias mank='man -k'
-alias manf='man -f'
-alias manw='man -w'
-```
-
-## System-wide Environment Configuration
-
-Create `/etc/profile.d/man-config.sh`:
-
-```bash
-#!/bin/bash
-# System-wide man page configuration for Fedora
-
-# Set default man page width
-export MANWIDTH=80
-
-# Less options for better man page viewing
-export LESS="-R -M -i -j.5 -z-2 -F -X"
-export LESSCHARSET=utf-8
-
-# Enable SGR mode for color support
-export GROFF_NO_SGR=
-```
-
-Make it executable:
-
-```bash
-sudo chmod +x /etc/profile.d/man-config.sh
-```
-
-## Automatic Man Database Updates
-
-Create `/etc/cron.weekly/man-db`:
-
-```bash
-#!/bin/bash
-# Weekly man database update for Fedora
-
-# Set nice level for low priority
-renice +19 -p $$ > /dev/null 2>&1
-
-# Update man database quietly
-/usr/bin/mandb --quiet --create
-
-# Clean old cache files (older than 30 days)
-find /var/cache/man -name "*.gz" -mtime +30 -delete 2>/dev/null || true
-
-exit 0
-```
-
-Make it executable:
-
-```bash
-sudo chmod +x /etc/cron.weekly/man-db
-```
-
-## User-specific Man Page Directory
-
-Add to your `~/.zshrc`:
-
-```zsh
-# Personal man page directory
+# --- Section 4: User-specific Man Page Directory ---
+#
+# Add a personal man page directory to the MANPATH
 if [[ -d "$HOME/.local/share/man" ]]; then
     export MANPATH="$HOME/.local/share/man:$MANPATH"
 fi
-
-# Function to add local man pages
-add_local_man() {
-    local manfile="$1"
-    local section="${2:-1}"
-
-    if [[ ! -f "$manfile" ]]; then
-        echo "Error: File '$manfile' not found"
-        return 1
-    fi
-
-    local mandir="$HOME/.local/share/man/man$section"
-    mkdir -p "$mandir"
-
-    # Copy and compress if needed
-    if [[ "$manfile" == *.gz ]]; then
-        cp "$manfile" "$mandir/"
-    else
-        gzip -c "$manfile" > "$mandir/$(basename "$manfile").gz"
-    fi
-
-    # Update local man database
-    mandb -u "$HOME/.local/share/man" 2>/dev/null
-    echo "Added $(basename "$manfile") to local man pages (section $section)"
-}
 ```
 
-## Additional Quality-of-Life Improvements
+### Step 4.2: Source the New File from `.zshrc`
 
-### 1. Install Development Documentation
-
-```bash
-# Programming languages documentation
-sudo dnf install python3-docs perl-doc
-
-# System administration
-sudo dnf install systemd-doc
-
-# Network tools
-sudo dnf install bind-utils-doc
-```
-
-### 2. Alternative Man Page Viewers
-
-```bash
-# Install most pager (alternative to less)
-sudo dnf install most
-
-# Configure most for man pages
-echo 'export PAGER="most"' >> ~/.zshrc
-```
-
-### 3. Man Page Statistics
-
-Add to your `~/.zshrc`:
+Finally, add the following line to your main `~/.zshrc` file. This keeps your `.zshrc` clean and loads the `man` page configurations automatically.
 
 ```zsh
-# Show man page statistics
-manstats() {
-    echo "Man page statistics:"
-    echo "Total pages: $(find /usr/share/man -name '*.gz' | wc -l)"
-    echo "Sections:"
-    for i in {1..9}; do
-        local count=$(find /usr/share/man/man$i -name '*.gz' 2>/dev/null | wc -l)
-        if [[ $count -gt 0 ]]; then
-            echo "  Section $i: $count pages"
-        fi
-    done
-    echo "Database last updated: $(stat -c %y /var/cache/man/index.db 2>/dev/null || echo 'Unknown')"
-}
+# ~/.zshrc
+
+# Source man page configurations if the file exists
+if [[ -f ~/.config/zsh/man.zsh ]]; then
+    source ~/.config/zsh/man.zsh
+fi
 ```
 
-## Performance Optimization
+---
 
-Add to `/etc/man_db.conf`:
+## 5. Automatic Man Database Updates
 
-```conf
-# Performance optimizations
-NOCACHE
-MAX_CACHE_SIZE 8192
-CACHE_TIMEOUT 604800
+On Arch Linux, no manual cron job is necessary. The `man-db` database is managed automatically by two mechanisms:
 
-# Regex support
-APROPOS_REGEX 1
-WHATIS_REGEX 1
+1.  **A `pacman` hook** (`/usr/share/libalpm/hooks/man-db.hook`) that updates the database after packages are installed or removed.
+2.  **A `systemd` timer** (`man-db.timer`) that runs periodically to ensure the database is consistent and clean.
+
+You can check the status of the timer with:
+
+```bash
+systemctl status man-db.timer
 ```
 
-## Verification and Testing
+---
 
-After applying these changes:
+## 6. Verification and Testing
 
-1. **Reload your shell configuration:**
+After applying these changes, perform the following steps:
 
-   ```bash
-   source ~/.zshrc
-   ```
+1.  **Reload your shell configuration:**
+    ```bash
+    source ~/.zshrc
+    ```
+2.  **Manually update the database (optional, as hooks handle this):**
+    ```bash
+    sudo mandb
+    ```
+3.  **Test basic functionality and colors.** The `pacman` or `grep` man pages are good tests for formatting.
+    ```bash
+    man pacman
+    ```
+4.  **Test fuzzy search (if `fzf` is installed):**
+    Press `Ctrl+X` then `Ctrl+M` to launch the fuzzy finder.
 
-2. **Update the man database:**
+5.  **Test a helper function:**
+    ```bash
+    manpath zsh
+    ```
 
-   ```bash
-   sudo mandb
-   ```
+---
 
-3. **Test basic functionality:**
+## 7. Troubleshooting
 
-   ```bash
-   man ls
-   ```
+- **No colors or functions are working:**
+  - Ensure the line `source ~/.config/zsh/man.zsh` exists in your `~/.zshrc` and that the path is correct.
+  - Verify the system-wide script at `/etc/profile.d/man-config.sh` exists, is executable, and contains `unset GROFF_NO_SGR`.
+  - Check that your terminal's `TERM` variable is set to a color-capable value (e.g., `xterm-256color`).
 
-4. **Test color support:**
+- **`man` pages not found:**
+  - Ensure the `man-pages` package is installed: `pacman -Q man-pages`.
+  - Check your `MANPATH` variable with `echo $MANPATH`. If it's incorrect, try unsetting it (`unset MANPATH`) and reloading your shell.
+  - Force a database rebuild with `sudo mandb -c`.
 
-   ```bash
-   man grep
-   ```
-
-5. **Test fuzzy search (if fzf is installed):**
-   ```bash
-   # Press Ctrl+X Ctrl+M
-   ```
-
-## Troubleshooting
-
-### Common Issues and Solutions
-
-1. **No colors in man pages:**
-   - Check terminal color support: `echo $TERM`
-   - Verify less version: `less --version`
-   - Test LESS_TERMCAP variables: `env | grep LESS_TERMCAP`
-
-2. **Man pages not found:**
-   - Check MANPATH: `echo $MANPATH`
-   - Verify packages: `dnf list installed | grep -E "(man-db|man-pages)"`
-   - Rebuild database: `sudo mandb --create`
-
-3. **Slow performance:**
-   - Clear cache: `sudo rm -rf /var/cache/man/*`
-   - Check disk space: `df -h /var/cache/man`
-
-4. **Fuzzy search not working:**
-   - Install fzf: `sudo dnf install fzf`
-   - Check zsh configuration: `which fzman`
-
-### Key Fixes Made
-
-1. **Corrected man_db.conf syntax** - Used proper MANPATH_MAP and section ordering
-2. **Fixed groff color issues** - Used GROFF_SGR environment variable for color support
-3. **Updated package names** - Confirmed actual Fedora package names
-4. **Fixed compression commands** - Used proper decompression command names
-5. **Corrected file paths** - Used standard Fedora filesystem locations
-6. **Enhanced error handling** - Added proper error checking in shell functions
-7. **Improved performance** - Added proper caching and database optimization
-
-This configuration now provides a robust, tested man page experience on Fedora Linux 42 with proper color support, enhanced search capabilities, and optimized performance.
+- **Fuzzy search (`fzman`) not working:**
+  - Confirm `fzf` is installed: `pacman -Q fzf`.
+  - Check for typos in the `fzman` function and `bindkey` command inside `~/.config/zsh/man.zsh`.

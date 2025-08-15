@@ -26,8 +26,9 @@ dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 systemctl --user start xdg-desktop-portal-hyprland &
 
 # cliphist
-wl-paste --type text --watch cliphist store --no-newline &
-wl-paste --type image --watch cliphist store &
+# replaced by custom systemd user service
+# wl-paste --type text --watch cliphist store --no-newline &
+# wl-paste --type image --watch cliphist store &
 
 # git
 # dbus-update-activation-environment --all &
